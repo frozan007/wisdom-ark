@@ -1,0 +1,265 @@
+<section class="form-page">
+
+  <a
+    class="back-link"
+    routerLink="/app/notes"
+  >
+    <mat-icon>arrow_back</mat-icon>
+    Notes
+  </a>
+
+
+  <header>
+    <span class="eyebrow">
+      Academic Tracking
+    </span>
+
+    <h1>
+      {{
+        isEditMode()
+          ? 'Edit Note'
+          : 'Add Note'
+      }}
+    </h1>
+
+    <p>
+      {{
+        isEditMode()
+          ? 'Update note details and status.'
+          : 'Create homework, notes or follow-ups.'
+      }}
+    </p>
+  </header>
+
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+
+      {{ errorMessage() }}
+    </div>
+  }
+
+
+  @if (loading()) {
+
+    <div class="loading-state">
+      <mat-spinner diameter="44" />
+    </div>
+
+  } @else {
+
+    <form
+      class="note-form"
+      [formGroup]="form"
+      (ngSubmit)="save()"
+    >
+
+      <div class="form-grid">
+
+
+        <label>
+          <span>
+            Note Type *
+          </span>
+
+          <select
+            formControlName="note_type"
+          >
+            <option value="general">
+              General Note
+            </option>
+
+            <option value="student_note">
+              Student Note
+            </option>
+
+            <option value="class_note">
+              Class Note
+            </option>
+
+            <option value="homework">
+              Homework
+            </option>
+
+            <option value="follow_up">
+              Follow-up
+            </option>
+          </select>
+        </label>
+
+
+        <label>
+          <span>Student</span>
+
+          <select
+            formControlName="student_id"
+          >
+            <option value="">
+              No student
+            </option>
+
+            @for (
+              student of students();
+              track student.id
+            ) {
+              <option
+                [value]="student.id"
+              >
+                {{ student.student_name }}
+                —
+                {{ student.class_name }}
+              </option>
+            }
+          </select>
+        </label>
+
+
+        <label class="full-width">
+          <span>
+            Related Class
+          </span>
+
+          <select
+            formControlName="schedule_id"
+          >
+            <option value="">
+              No related class
+            </option>
+
+            @for (
+              schedule of schedules();
+              track schedule.id
+            ) {
+              <option
+                [value]="schedule.id"
+              >
+                {{
+                  schedule.subject ||
+                  schedule.title
+                }}
+
+                @if (schedule.class_date) {
+                  —
+                  {{ schedule.class_date }}
+                }
+              </option>
+            }
+          </select>
+        </label>
+
+
+        <label class="full-width">
+          <span>Title *</span>
+
+          <input
+            type="text"
+            formControlName="title"
+            placeholder="Example: Exercise 4.2"
+          />
+
+          @if (
+            form.controls.title.touched &&
+            form.controls.title.invalid
+          ) {
+            <small>
+              Enter a title between
+              2 and 150 characters.
+            </small>
+          }
+        </label>
+
+
+        <label class="full-width">
+          <span>Description</span>
+
+          <textarea
+            rows="6"
+            formControlName="content"
+            placeholder="Write note details..."
+          ></textarea>
+        </label>
+
+
+        <label>
+          <span>
+            Due Date
+            @if (requiresDueDate) {
+              *
+            }
+          </span>
+
+          <input
+            type="date"
+            formControlName="due_date"
+          />
+
+          @if (
+            requiresDueDate &&
+            form.controls.due_date.touched &&
+            form.controls.due_date.invalid
+          ) {
+            <small>
+              Due date is required for
+              homework and follow-ups.
+            </small>
+          }
+        </label>
+
+
+        <label>
+          <span>Status *</span>
+
+          <select
+            formControlName="status"
+          >
+            <option value="pending">
+              Pending
+            </option>
+
+            <option value="completed">
+              Completed
+            </option>
+          </select>
+        </label>
+
+      </div>
+
+
+      <div class="form-actions">
+
+        <a
+          mat-stroked-button
+          routerLink="/app/notes"
+        >
+          Cancel
+        </a>
+
+        <button
+          mat-flat-button
+          class="save-button"
+          type="submit"
+          [disabled]="saving()"
+        >
+          @if (saving()) {
+            <mat-spinner
+              diameter="20"
+            />
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+
+          {{
+            isEditMode()
+              ? 'Update Note'
+              : 'Save Note'
+          }}
+        </button>
+
+      </div>
+
+    </form>
+
+  }
+
+</section>

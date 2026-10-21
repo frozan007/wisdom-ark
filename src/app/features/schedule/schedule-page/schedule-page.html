@@ -1,0 +1,334 @@
+<section class="schedule-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">Class management</span>
+      <h1>Schedule</h1>
+      <p>
+        Organize classes and track upcoming and completed
+        sessions.
+      </p>
+    </div>
+
+    <a
+      mat-flat-button
+      class="add-button"
+      routerLink="/app/schedule/new"
+    >
+      <mat-icon>add</mat-icon>
+      Add class
+    </a>
+  </header>
+
+  <nav class="view-navigation">
+    <button
+      type="button"
+      [class.active]="activeView() === 'today'"
+      (click)="showToday()"
+    >
+      <mat-icon>today</mat-icon>
+      <span>Today</span>
+    </button>
+
+    <button
+      type="button"
+      [class.active]="activeView() === 'calendar'"
+      (click)="showCalendar()"
+    >
+      <mat-icon>calendar_month</mat-icon>
+      <span>Calendar</span>
+    </button>
+
+    <button
+      type="button"
+      [class.active]="activeView() === 'upcoming'"
+      (click)="showUpcoming()"
+    >
+      <mat-icon>upcoming</mat-icon>
+      <span>Upcoming</span>
+    </button>
+
+    <button
+      type="button"
+      [class.active]="activeView() === 'completed'"
+      (click)="showCompleted()"
+    >
+      <mat-icon>task_alt</mat-icon>
+      <span>Completed</span>
+    </button>
+  </nav>
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (activeView() === 'calendar') {
+    <section class="calendar-card">
+      <header class="calendar-header">
+        <button
+          mat-icon-button
+          type="button"
+          aria-label="Previous month"
+          (click)="previousMonth()"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        <h2>
+          {{ calendarMonth() | date:'MMMM y' }}
+        </h2>
+
+        <button
+          mat-icon-button
+          type="button"
+          aria-label="Next month"
+          (click)="nextMonth()"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </header>
+
+      <div class="weekday-row">
+        <span>Sun</span>
+        <span>Mon</span>
+        <span>Tue</span>
+        <span>Wed</span>
+        <span>Thu</span>
+        <span>Fri</span>
+        <span>Sat</span>
+      </div>
+
+      <div class="calendar-grid">
+        @for (day of calendarDays(); track day.dateKey) {
+          <button
+            type="button"
+            class="calendar-day"
+            [class.other-month]="!day.currentMonth"
+            [class.today]="day.today"
+            [class.selected]="day.selected"
+            (click)="selectCalendarDate(day)"
+          >
+            <span class="day-number">
+              {{ day.dayNumber }}
+            </span>
+
+            @if (day.schedules.length > 0) {
+              <span class="class-count">
+                {{ day.schedules.length }}
+              </span>
+            }
+
+            <div class="calendar-events">
+              @for (
+                schedule of day.schedules.slice(0, 2);
+                track schedule.id
+              ) {
+                <span>
+                  {{ formatTime(schedule.start_time) }}
+                  {{ schedule.title }}
+                </span>
+              }
+
+              @if (day.schedules.length > 2) {
+                <small>
+                  +{{ day.schedules.length - 2 }} more
+                </small>
+              }
+            </div>
+          </button>
+        }
+      </div>
+    </section>
+
+    <header class="selected-date-heading">
+      <div>
+        <h2>
+          {{ selectedDate() | date:'EEEE, d MMMM y' }}
+        </h2>
+        <p>Classes scheduled for the selected date.</p>
+      </div>
+    </header>
+  } @else {
+    <header class="section-heading">
+      <div>
+        <h2>
+          @switch (activeView()) {
+            @case ('today') {
+              Today’s Classes
+            }
+
+            @case ('upcoming') {
+              Upcoming Classes
+            }
+
+            @case ('completed') {
+              Completed Classes
+            }
+          }
+        </h2>
+
+        <p>
+          @if (activeView() === 'today') {
+            {{ todayKey | date:'EEEE, d MMMM y' }}
+          } @else if (activeView() === 'upcoming') {
+            Future scheduled classes
+          } @else {
+            Previously completed classes
+          }
+        </p>
+      </div>
+    </header>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="44" />
+      <span>Loading classes...</span>
+    </div>
+  } @else if (schedules().length === 0) {
+    <div class="empty-state">
+      <mat-icon>event_available</mat-icon>
+
+      <h2>No classes found</h2>
+
+      <p>
+        Add a class or select another schedule view.
+      </p>
+
+      <a mat-flat-button routerLink="/app/schedule/new">
+        Add class
+      </a>
+    </div>
+  } @else {
+    <div class="schedule-list">
+      @for (schedule of schedules(); track schedule.id) {
+        <article
+          class="schedule-card"
+          [class.completed]="schedule.status === 'completed'"
+          [class.cancelled]="schedule.status === 'cancelled'"
+        >
+          <div class="time-column">
+            <strong>{{ formatTime(schedule.start_time) }}</strong>
+            <span>{{ formatTime(schedule.end_time) }}</span>
+          </div>
+
+          <div class="schedule-line"></div>
+
+          <div class="schedule-details">
+            <div class="schedule-title-row">
+              <div>
+                <h3>{{ schedule.title }}</h3>
+
+                <p>
+                  {{ schedule.subject || 'General class' }}
+
+                  @if (schedule.students) {
+                    · {{ schedule.students.student_name }}
+                  }
+                </p>
+              </div>
+
+              <span
+                class="status"
+                [class]="schedule.status"
+              >
+                {{ schedule.status | titlecase }}
+              </span>
+            </div>
+
+            <div class="schedule-meta">
+              @if (activeView() !== 'today') {
+                <span>
+                  <mat-icon>calendar_today</mat-icon>
+                  {{ schedule.class_date | date:'d MMM y' }}
+                </span>
+              }
+
+              <span>
+                <mat-icon>groups</mat-icon>
+                {{ schedule.class_type | titlecase }}
+              </span>
+
+              @if (schedule.location) {
+                <span>
+                  <mat-icon>location_on</mat-icon>
+                  {{ schedule.location }}
+                </span>
+              }
+            </div>
+
+            @if (schedule.description) {
+              <p class="description">
+                {{ schedule.description }}
+              </p>
+            }
+          </div>
+
+          <button
+            mat-icon-button
+            [matMenuTriggerFor]="scheduleMenu"
+            aria-label="Class actions"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+
+          <mat-menu #scheduleMenu="matMenu">
+            <a
+              mat-menu-item
+              [routerLink]="[
+                '/app/schedule',
+                schedule.id,
+                'edit'
+              ]"
+            >
+              <mat-icon>edit</mat-icon>
+              <span>Edit</span>
+            </a>
+
+            @if (schedule.status === 'scheduled') {
+              <button
+                mat-menu-item
+                type="button"
+                (click)="markCompleted(schedule)"
+              >
+                <mat-icon>task_alt</mat-icon>
+                <span>Mark completed</span>
+              </button>
+
+              <button
+                mat-menu-item
+                type="button"
+                (click)="cancel(schedule)"
+              >
+                <mat-icon>event_busy</mat-icon>
+                <span>Cancel class</span>
+              </button>
+            }
+
+            @if (schedule.status !== 'scheduled') {
+              <button
+                mat-menu-item
+                type="button"
+                (click)="restore(schedule)"
+              >
+                <mat-icon>restore</mat-icon>
+                <span>Restore as scheduled</span>
+              </button>
+            }
+
+            <button
+              mat-menu-item
+              type="button"
+              (click)="permanentlyDelete(schedule)"
+            >
+              <mat-icon>delete_forever</mat-icon>
+              <span>Delete permanently</span>
+            </button>
+          </mat-menu>
+        </article>
+      }
+    </div>
+  }
+</section>

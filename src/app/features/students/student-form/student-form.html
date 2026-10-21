@@ -1,0 +1,395 @@
+<section class="student-form-page">
+  <header class="page-header">
+    <div>
+      <a
+        class="back-link"
+        routerLink="/app/students"
+      >
+        <mat-icon>arrow_back</mat-icon>
+        Students
+      </a>
+
+      <span class="eyebrow">Student management</span>
+
+      <h1>
+        {{ editMode() ? 'Edit student' : 'Add student' }}
+      </h1>
+
+      <p>
+        {{
+          editMode()
+            ? 'Update the student profile and tuition details.'
+            : 'Create a new student profile.'
+        }}
+      </p>
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  @if (loadingStudent()) {
+    <div class="loading-state">
+      <mat-spinner diameter="44" />
+      <span>Loading student...</span>
+    </div>
+  } @else {
+    <form
+      class="student-form"
+      [formGroup]="studentForm"
+      (ngSubmit)="submit()"
+    >
+      <section class="form-card photo-card">
+        <div class="section-heading">
+          <div>
+            <h2>Profile photo</h2>
+            <p>JPEG, PNG or WebP. Maximum 5 MB.</p>
+          </div>
+        </div>
+
+        <div class="photo-picker">
+          <div class="photo-preview">
+            @if (imagePreview()) {
+              <img
+                [src]="imagePreview()"
+                alt="Student profile preview"
+              />
+            } @else {
+              <mat-icon>person</mat-icon>
+            }
+          </div>
+
+          <div class="photo-actions">
+            <input
+              #photoInput
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              hidden
+              (change)="onImageSelected($event)"
+            />
+
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="photoInput.click()"
+            >
+              <mat-icon>upload</mat-icon>
+              Select photo
+            </button>
+
+            @if (imagePreview()) {
+              <button
+                mat-button
+                type="button"
+                (click)="removeSelectedImage(photoInput)"
+              >
+                Remove preview
+              </button>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="form-card">
+        <div class="section-heading">
+          <div>
+            <h2>Student information</h2>
+            <p>Basic personal and academic details.</p>
+          </div>
+
+          <mat-icon>school</mat-icon>
+        </div>
+
+        <div class="form-grid">
+          <label class="field full-width">
+            <span>Student name *</span>
+
+            <input
+              type="text"
+              formControlName="student_name"
+              placeholder="Enter student name"
+            />
+
+            @if (
+              hasError('student_name', 'required') ||
+              hasError('student_name', 'minlength')
+            ) {
+              <small>
+                Enter a student name with at least 2 characters.
+              </small>
+            }
+          </label>
+
+          <label class="field">
+            <span>Date of birth</span>
+
+            <input
+              type="date"
+              formControlName="date_of_birth"
+              [max]="today"
+            />
+          </label>
+
+          <label class="field">
+            <span>Gender</span>
+
+            <select formControlName="gender">
+              <option value="">Select gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+              <option value="prefer_not_to_say">
+                Prefer not to say
+              </option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>School name</span>
+
+            <input
+              type="text"
+              formControlName="school_name"
+              placeholder="Enter school name"
+            />
+          </label>
+
+          <label class="field">
+            <span>Class / Grade *</span>
+
+            <input
+              type="text"
+              formControlName="class_name"
+              placeholder="Example: Class 10"
+            />
+
+            @if (hasError('class_name', 'required')) {
+              <small>Class or grade is required.</small>
+            }
+          </label>
+
+          <label class="field full-width">
+            <span>Subjects</span>
+
+            <input
+              type="text"
+              formControlName="subjectsText"
+              placeholder="Mathematics, Science, English"
+            />
+
+            <small class="hint">
+              Separate multiple subjects using commas.
+            </small>
+          </label>
+        </div>
+      </section>
+
+      <section class="form-card">
+        <div class="section-heading">
+          <div>
+            <h2>Parent or guardian</h2>
+            <p>Contact and communication information.</p>
+          </div>
+
+          <mat-icon>family_restroom</mat-icon>
+        </div>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>Parent/guardian name *</span>
+
+            <input
+              type="text"
+              formControlName="parent_name"
+              placeholder="Enter parent name"
+            />
+
+            @if (
+              hasError('parent_name', 'required') ||
+              hasError('parent_name', 'minlength')
+            ) {
+              <small>
+                Enter a name with at least 2 characters.
+              </small>
+            }
+          </label>
+
+          <label class="field">
+            <span>Primary phone *</span>
+
+            <input
+              type="tel"
+              inputmode="numeric"
+              maxlength="10"
+              formControlName="primary_phone"
+              placeholder="10-digit phone number"
+            />
+
+            @if (
+              hasError('primary_phone', 'required') ||
+              hasError('primary_phone', 'pattern')
+            ) {
+              <small>Enter a valid 10-digit phone number.</small>
+            }
+          </label>
+
+          <label class="field">
+            <span>Alternative phone</span>
+
+            <input
+              type="tel"
+              inputmode="numeric"
+              maxlength="10"
+              formControlName="alternative_phone"
+              placeholder="Optional phone number"
+            />
+
+            @if (hasError('alternative_phone', 'pattern')) {
+              <small>Enter a valid 10-digit phone number.</small>
+            }
+          </label>
+
+          <label class="field">
+            <span>Email</span>
+
+            <input
+              type="email"
+              formControlName="email"
+              placeholder="parent@example.com"
+            />
+
+            @if (hasError('email', 'email')) {
+              <small>Enter a valid email address.</small>
+            }
+          </label>
+
+          <label class="field full-width">
+            <span>Address</span>
+
+            <textarea
+              rows="4"
+              formControlName="address"
+              placeholder="Enter the student's address"
+            ></textarea>
+          </label>
+        </div>
+      </section>
+
+      <section class="form-card">
+        <div class="section-heading">
+          <div>
+            <h2>Tuition details</h2>
+            <p>Joining date, fees and payment settings.</p>
+          </div>
+
+          <mat-icon>payments</mat-icon>
+        </div>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>Joining date *</span>
+
+            <input
+              type="date"
+              formControlName="joining_date"
+            />
+          </label>
+
+          <label class="field">
+            <span>Monthly fee *</span>
+
+            <div class="currency-input">
+              <span>₹</span>
+
+              <input
+                type="number"
+                min="0"
+                step="1"
+                formControlName="monthly_fee"
+              />
+            </div>
+
+            @if (
+              hasError('monthly_fee', 'required') ||
+              hasError('monthly_fee', 'min')
+            ) {
+              <small>Enter a valid monthly fee.</small>
+            }
+          </label>
+
+          <label class="field">
+            <span>Payment due day</span>
+
+            <input
+              type="number"
+              min="1"
+              max="31"
+              formControlName="payment_due_day"
+              placeholder="Example: 10"
+            />
+
+            @if (
+              hasError('payment_due_day', 'min') ||
+              hasError('payment_due_day', 'max')
+            ) {
+              <small>Due day must be between 1 and 31.</small>
+            }
+          </label>
+
+          <label class="field">
+            <span>Status</span>
+
+            <select formControlName="status">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </label>
+
+          <label class="field full-width">
+            <span>Notes</span>
+
+            <textarea
+              rows="5"
+              formControlName="notes"
+              placeholder="Add any general information about the student"
+            ></textarea>
+          </label>
+        </div>
+      </section>
+
+      <footer class="form-actions">
+        <a
+          mat-stroked-button
+          routerLink="/app/students"
+        >
+          Cancel
+        </a>
+
+        <button
+          mat-flat-button
+          class="save-button"
+          type="submit"
+          [disabled]="loading()"
+        >
+          @if (loading()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+
+          {{
+            loading()
+              ? 'Saving...'
+              : editMode()
+                ? 'Save changes'
+                : 'Add student'
+          }}
+        </button>
+      </footer>
+    </form>
+  }
+</section>

@@ -1,0 +1,412 @@
+<section class="detail-page">
+
+  <a
+    class="back-link"
+    routerLink="/app/notes"
+  >
+    <mat-icon>arrow_back</mat-icon>
+    Notes
+  </a>
+
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+
+      {{ errorMessage() }}
+    </div>
+  }
+
+
+  @if (loading()) {
+
+    <div class="loading-state">
+      <mat-spinner diameter="44" />
+
+      <span>
+        Loading note...
+      </span>
+    </div>
+
+  } @else if (note(); as currentNote) {
+
+    <header class="detail-header">
+
+      <div class="heading">
+
+        <div
+          class="note-icon"
+          [class.homework]="
+            currentNote.note_type ===
+              'homework'
+          "
+          [class.follow-up]="
+            currentNote.note_type ===
+              'follow_up'
+          "
+        >
+          <mat-icon>
+            {{
+              noteTypeIcon(
+                currentNote.note_type
+              )
+            }}
+          </mat-icon>
+        </div>
+
+
+        <div>
+
+          <div class="heading-meta">
+
+            <span class="note-type">
+              {{
+                noteTypeLabel(
+                  currentNote.note_type
+                )
+              }}
+            </span>
+
+
+            @if (
+              currentNote.status ===
+                'completed'
+            ) {
+              <span
+                class="status completed"
+              >
+                <mat-icon>check</mat-icon>
+                Completed
+              </span>
+            } @else if (
+              isOverdue(currentNote)
+            ) {
+              <span
+                class="status overdue"
+              >
+                <mat-icon>warning</mat-icon>
+                Overdue
+              </span>
+            } @else if (
+              isDueToday(currentNote)
+            ) {
+              <span
+                class="status today"
+              >
+                <mat-icon>today</mat-icon>
+                Due Today
+              </span>
+            } @else {
+              <span
+                class="status pending"
+              >
+                <mat-icon>
+                  pending_actions
+                </mat-icon>
+                Pending
+              </span>
+            }
+
+          </div>
+
+
+          <h1>
+            {{ currentNote.title }}
+          </h1>
+
+        </div>
+
+      </div>
+
+
+      <div class="header-actions">
+
+        <a
+          mat-stroked-button
+          [routerLink]="[
+            '/app/notes',
+            currentNote.id,
+            'edit'
+          ]"
+        >
+          <mat-icon>edit</mat-icon>
+          Edit
+        </a>
+
+
+        <button
+          mat-flat-button
+          class="complete-button"
+          type="button"
+          [disabled]="processing()"
+          (click)="toggleStatus()"
+        >
+          <mat-icon>
+            {{
+              currentNote.status ===
+                'completed'
+                ? 'undo'
+                : 'check'
+            }}
+          </mat-icon>
+
+          {{
+            currentNote.status ===
+              'completed'
+              ? 'Reopen'
+              : 'Mark Complete'
+          }}
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <div class="detail-layout">
+
+      <main class="main-column">
+
+        <article class="content-card">
+
+          <div class="card-heading">
+            <mat-icon>notes</mat-icon>
+
+            <h2>Details</h2>
+          </div>
+
+
+          @if (currentNote.content) {
+
+            <div class="note-text">
+              {{ currentNote.content }}
+            </div>
+
+          } @else {
+
+            <div class="no-content">
+              No additional details were
+              added to this note.
+            </div>
+
+          }
+
+        </article>
+
+
+        @if (currentNote.schedules) {
+
+          <article class="content-card">
+
+            <div class="card-heading">
+              <mat-icon>
+                calendar_month
+              </mat-icon>
+
+              <h2>Related Class</h2>
+            </div>
+
+
+            <div class="related-class">
+
+              <div class="class-icon">
+                <mat-icon>school</mat-icon>
+              </div>
+
+
+              <div>
+                <strong>
+                  {{
+                    currentNote.schedules
+                      .subject ||
+                    currentNote.schedules
+                      .title
+                  }}
+                </strong>
+
+                <span>
+                  {{
+                    currentNote.schedules
+                      .class_date
+                      | date:'EEEE, d MMM y'
+                  }}
+
+                  @if (
+                    currentNote.schedules
+                      .start_time
+                  ) {
+                    ·
+                    {{
+                      currentNote.schedules
+                        .start_time
+                    }}
+                  }
+                </span>
+              </div>
+
+            </div>
+
+          </article>
+
+        }
+
+
+        <article class="danger-card">
+
+          <div>
+            <strong>Delete Note</strong>
+
+            <span>
+              Permanently remove this note.
+              This cannot be undone.
+            </span>
+          </div>
+
+          <button
+            mat-stroked-button
+            class="delete-button"
+            type="button"
+            [disabled]="processing()"
+            (click)="deleteNote()"
+          >
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+
+        </article>
+
+      </main>
+
+
+      <aside class="side-column">
+
+        @if (currentNote.students) {
+
+          <article class="info-card">
+
+            <span class="info-label">
+              Student
+            </span>
+
+
+            <a
+              class="student"
+              [routerLink]="[
+                '/app/students',
+                currentNote.students.id
+              ]"
+            >
+
+              <div class="avatar">
+                {{
+                  currentNote.students
+                    .student_name
+                    .charAt(0)
+                    .toUpperCase()
+                }}
+              </div>
+
+
+              <div>
+                <strong>
+                  {{
+                    currentNote.students
+                      .student_name
+                  }}
+                </strong>
+
+                <span>
+                  {{
+                    currentNote.students
+                      .class_name
+                  }}
+                </span>
+              </div>
+
+              <mat-icon>
+                chevron_right
+              </mat-icon>
+
+            </a>
+
+          </article>
+
+        }
+
+
+        <article class="info-card">
+
+          <div class="info-row">
+            <div>
+              <mat-icon>event</mat-icon>
+
+              <span>Due Date</span>
+            </div>
+
+            <strong
+              [class.overdue-text]="
+                isOverdue(currentNote)
+              "
+            >
+              @if (
+                currentNote.due_date
+              ) {
+                {{
+                  currentNote.due_date
+                    | date:'d MMM y'
+                }}
+              } @else {
+                No due date
+              }
+            </strong>
+          </div>
+
+
+          <div class="info-row">
+            <div>
+              <mat-icon>
+                calendar_today
+              </mat-icon>
+
+              <span>Created</span>
+            </div>
+
+            <strong>
+              {{
+                currentNote.created_at
+                  | date:'d MMM y'
+              }}
+            </strong>
+          </div>
+
+
+          @if (
+            currentNote.completed_at
+          ) {
+            <div class="info-row">
+              <div>
+                <mat-icon>
+                  task_alt
+                </mat-icon>
+
+                <span>Completed</span>
+              </div>
+
+              <strong>
+                {{
+                  currentNote.completed_at
+                    | date:'d MMM y, h:mm a'
+                }}
+              </strong>
+            </div>
+          }
+
+        </article>
+
+      </aside>
+
+    </div>
+
+  }
+
+</section>

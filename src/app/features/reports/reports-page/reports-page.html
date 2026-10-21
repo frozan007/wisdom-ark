@@ -1,0 +1,499 @@
+<section class="reports-page">
+
+    <header class="page-header">
+
+        <div>
+            <span class="eyebrow">
+                Insights
+            </span>
+
+            <h1>Reports</h1>
+
+            <p>
+                Review students, fee collection
+                and pending payments.
+            </p>
+        </div>
+
+        <div class="export-actions">
+
+            <button mat-stroked-button type="button" [disabled]="loading() || !summary()" (click)="exportExcel()">
+                <mat-icon>
+                    table_view
+                </mat-icon>
+
+                Export Excel
+            </button>
+
+            <button mat-stroked-button type="button" [disabled]="loading() || !summary()"(click)="exportPdf()">
+                <mat-icon>
+                    picture_as_pdf
+                </mat-icon>
+
+                Export PDF
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <section class="report-toolbar">
+
+        <div>
+            <mat-icon>
+                calendar_month
+            </mat-icon>
+
+            <strong>
+                {{ monthName() }}
+                {{ selectedYear }}
+            </strong>
+        </div>
+
+
+        <div class="period-controls">
+
+            <select [(ngModel)]="selectedMonth" (change)="periodChanged()">
+                @for (
+                month of months;
+                track month.value
+                ) {
+                <option [value]="month.value">
+                    {{ month.label }}
+                </option>
+                }
+            </select>
+
+
+            <select [(ngModel)]="selectedYear" (change)="periodChanged()">
+                @for (
+                year of years;
+                track year
+                ) {
+                <option [value]="year">
+                    {{ year }}
+                </option>
+                }
+            </select>
+
+        </div>
+
+    </section>
+
+
+    @if (errorMessage()) {
+
+    <div class="error-message">
+        <mat-icon>error</mat-icon>
+        {{ errorMessage() }}
+    </div>
+
+    }
+
+
+    @if (loading()) {
+
+    <div class="loading-state">
+
+        <mat-spinner diameter="44" />
+
+        <span>
+            Generating reports...
+        </span>
+
+    </div>
+
+    } @else if (summary(); as report) {
+
+    <section class="summary-grid">
+
+        <article>
+            <div class="summary-icon">
+                <mat-icon>groups</mat-icon>
+            </div>
+
+            <div>
+                <span>
+                    Active Students
+                </span>
+
+                <strong>
+                    {{ report.activeStudents }}
+                </strong>
+            </div>
+        </article>
+
+
+        <article>
+            <div class="summary-icon collected">
+                <mat-icon>
+                    account_balance_wallet
+                </mat-icon>
+            </div>
+
+            <div>
+                <span>
+                    Monthly Income
+                </span>
+
+                <strong>
+                    {{
+                    report.collectedFees
+                    | currency:'INR':'symbol':'1.0-0'
+                    }}
+                </strong>
+            </div>
+        </article>
+
+
+        <article>
+            <div class="summary-icon pending">
+                <mat-icon>
+                    pending_actions
+                </mat-icon>
+            </div>
+
+            <div>
+                <span>
+                    Pending Payments
+                </span>
+
+                <strong>
+                    {{
+                    report.pendingFees
+                    | currency:'INR':'symbol':'1.0-0'
+                    }}
+                </strong>
+            </div>
+        </article>
+
+
+        <article>
+            <div class="summary-icon rate">
+                <mat-icon>percent</mat-icon>
+            </div>
+
+            <div>
+                <span>
+                    Collection Rate
+                </span>
+
+                <strong>
+                    {{ report.collectionRate }}%
+                </strong>
+            </div>
+        </article>
+
+    </section>
+
+
+    <section class="reports-grid">
+
+        <!-- COLLECTION GRAPH -->
+
+        <article class="report-card collection-card">
+
+            <header>
+                <div>
+                    <h2>
+                        Collection Graph
+                    </h2>
+
+                    <p>
+                        Fee collection over the
+                        last six months.
+                    </p>
+                </div>
+
+                <mat-icon>
+                    monitoring
+                </mat-icon>
+            </header>
+
+
+            <div class="chart-legend">
+
+                <span>
+                    <i class="expected-dot"></i>
+                    Expected
+                </span>
+
+                <span>
+                    <i class="collected-dot"></i>
+                    Collected
+                </span>
+
+            </div>
+
+
+            <div class="collection-chart">
+
+                @for (
+                item of collectionTrend();
+                track item.label
+                ) {
+
+                <div class="chart-column">
+
+                    <div class="bars">
+
+                        <div class="bar expected" [style.height.%]="
+                    trendHeight(
+                      item.expected
+                    )
+                  " [title]="
+                    'Expected ₹' +
+                    item.expected
+                  "></div>
+
+
+                        <div class="bar collected" [style.height.%]="
+                    trendHeight(
+                      item.collected
+                    )
+                  " [title]="
+                    'Collected ₹' +
+                    item.collected
+                  "></div>
+
+                    </div>
+
+
+                    <span>
+                        {{ item.label }}
+                    </span>
+
+                </div>
+
+                }
+
+            </div>
+
+        </article>
+
+
+        <!-- STUDENT SUMMARY -->
+
+        <article class="report-card">
+
+            <header>
+                <div>
+                    <h2>
+                        Fee Status
+                    </h2>
+
+                    <p>
+                        Student payment status for
+                        {{ monthName() }}.
+                    </p>
+                </div>
+
+                <mat-icon>
+                    donut_large
+                </mat-icon>
+            </header>
+
+
+            <div class="status-summary">
+
+                <div>
+                    <span>Fully Paid</span>
+
+                    <strong class="paid">
+                        {{ report.paidStudents }}
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span>
+                        Partially Paid
+                    </span>
+
+                    <strong class="partial">
+                        {{
+                        report.partiallyPaidStudents
+                        }}
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span>Pending</span>
+
+                    <strong class="pending">
+                        {{
+                        report.pendingStudents
+                        }}
+                    </strong>
+                </div>
+
+            </div>
+
+
+            <div class="expected-summary">
+
+                <span>
+                    Expected Fees
+                </span>
+
+                <strong>
+                    {{
+                    report.expectedFees
+                    | currency:'INR':'symbol':'1.0-0'
+                    }}
+                </strong>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- PENDING PAYMENTS -->
+
+    <article class="report-card pending-card">
+
+        <header>
+
+            <div>
+                <h2>
+                    Pending Payments
+                </h2>
+
+                <p>
+                    Students with unpaid or
+                    partially paid fees.
+                </p>
+            </div>
+
+
+            <a mat-button routerLink="/app/payments">
+                View Payments
+
+                <mat-icon>
+                    arrow_forward
+                </mat-icon>
+            </a>
+
+        </header>
+
+
+        @if (
+        pendingPayments().length === 0
+        ) {
+
+        <div class="empty-state">
+
+            <mat-icon>
+                task_alt
+            </mat-icon>
+
+            <strong>
+                No pending payments
+            </strong>
+
+            <span>
+                Everyone is fully paid for
+                this month.
+            </span>
+
+        </div>
+
+        } @else {
+
+        <div class="pending-table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Class</th>
+                        <th>Monthly Fee</th>
+                        <th>Paid</th>
+                        <th>Pending</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @for (
+                    student of pendingPayments();
+                    track student.studentId
+                    ) {
+
+                    <tr>
+
+                        <td>
+                            <a [routerLink]="[
+                        '/app/students',
+                        student.studentId
+                      ]">
+                                {{
+                                student.studentName
+                                }}
+                            </a>
+                        </td>
+
+                        <td>
+                            {{
+                            student.className
+                            }}
+                        </td>
+
+                        <td>
+                            {{
+                            student.monthlyFee
+                            | currency:'INR':'symbol':'1.0-0'
+                            }}
+                        </td>
+
+                        <td>
+                            {{
+                            student.paidAmount
+                            | currency:'INR':'symbol':'1.0-0'
+                            }}
+                        </td>
+
+                        <td class="pending-value">
+                            {{
+                            student.pendingAmount
+                            | currency:'INR':'symbol':'1.0-0'
+                            }}
+                        </td>
+
+                        <td>
+                            <span class="status-badge" [class.partial]="
+                        student.status ===
+                          'partial'
+                      ">
+                                {{
+                                student.status ===
+                                'partial'
+                                ? 'Partial'
+                                : 'Pending'
+                                }}
+                            </span>
+                        </td>
+
+                    </tr>
+
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        }
+
+    </article>
+
+    }
+
+</section>

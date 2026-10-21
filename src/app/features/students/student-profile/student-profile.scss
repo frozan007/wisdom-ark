@@ -1,0 +1,793 @@
+.student-profile-page {
+  max-width: 1250px;
+  margin: 0 auto;
+}
+
+.back-link {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  color: var(--wa-primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px;
+  border-radius: 26px;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgb(244 180 0 / 16%),
+      transparent 36%
+    ),
+    linear-gradient(
+      145deg,
+      var(--wa-primary),
+      var(--wa-primary-dark)
+    );
+  color: #ffffff;
+  box-shadow: var(--wa-shadow-card);
+}
+
+.profile-identity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.profile-avatar {
+  width: 112px;
+  height: 112px;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: 3px solid rgb(255 255 255 / 35%);
+  border-radius: 32px;
+  background: rgb(255 255 255 / 14%);
+  font-size: 2.2rem;
+  font-weight: 800;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.name-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.name-line h1 {
+  margin: 0;
+  font-size: clamp(1.9rem, 5vw, 2.8rem);
+}
+
+.profile-identity p {
+  margin: 6px 0 12px;
+  color: rgb(255 255 255 / 76%);
+}
+
+.status {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 18%);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.subject-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.subject-list span {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 13%);
+  font-size: 0.75rem;
+}
+
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.header-actions a,
+.header-actions button {
+  border-color: rgb(255 255 255 / 35%) !important;
+  color: #ffffff !important;
+}
+
+.restore-button {
+  background: var(--wa-gold) !important;
+  color: #2c2200 !important;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.quick-actions > button,
+.quick-actions > div {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 18px;
+  border: 1px solid var(--wa-border);
+  border-radius: 18px;
+  background: var(--wa-surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.quick-actions > button {
+  cursor: pointer;
+}
+
+.quick-actions > button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.quick-actions mat-icon {
+  color: var(--wa-primary);
+}
+
+.quick-actions div div,
+.quick-actions button div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.quick-actions strong,
+.quick-actions span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quick-actions span {
+  color: var(--wa-text-secondary);
+  font-size: 0.78rem;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.details-card {
+  padding: 22px;
+  border: 1px solid var(--wa-border);
+  border-radius: 22px;
+  background: var(--wa-surface);
+  box-shadow: var(--wa-shadow-card);
+}
+
+.details-card header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.details-card h2 {
+  margin: 0;
+}
+
+.details-card header mat-icon {
+  color: var(--wa-primary);
+}
+
+dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin: 0;
+}
+
+dl div {
+  min-width: 0;
+}
+
+dt {
+  margin-bottom: 5px;
+  color: var(--wa-text-secondary);
+  font-size: 0.76rem;
+}
+
+dd {
+  overflow-wrap: anywhere;
+  margin: 0;
+  font-weight: 650;
+  text-transform: capitalize;
+}
+
+.full-detail {
+  grid-column: 1 / -1;
+}
+
+.notes-card p {
+  margin: 0;
+  color: var(--wa-text-secondary);
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.danger-zone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  margin-top: 18px;
+  padding: 22px;
+  border: 1px solid #fecaca;
+  border-radius: 20px;
+  background: #fff7f7;
+}
+
+.danger-zone h2 {
+  margin: 0 0 5px;
+  color: #991b1b;
+}
+
+.danger-zone p {
+  margin: 0;
+  color: #7f1d1d;
+}
+
+.delete-button {
+  background: #b42318 !important;
+  color: #ffffff !important;
+}
+
+.loading-state {
+  min-height: 420px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 14px;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #fef2f2;
+  color: #b42318;
+}
+
+@media (max-width: 950px) {
+  .profile-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .quick-actions,
+  .profile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .profile-identity {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .profile-avatar {
+    width: 90px;
+    height: 90px;
+  }
+
+  .name-line {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .header-actions a,
+  .header-actions button {
+    flex: 1;
+  }
+
+  .quick-actions,
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .danger-zone {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .danger-zone button {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   ACADEMIC TRACKING
+   ========================================================= */
+
+.academic-section {
+  margin-top: 28px;
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+
+  h2 {
+    margin: 3px 0 4px;
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    color: #607066;
+  }
+}
+
+.section-eyebrow {
+  color: #08783e;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.add-note-button {
+  flex-shrink: 0;
+  border-radius: 24px !important;
+}
+
+
+/* =========================================================
+   SUMMARY
+   ========================================================= */
+
+.academic-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.academic-stat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  min-height: 76px;
+  padding: 14px 18px;
+
+  border: 1px solid #d8e2dc;
+  border-radius: 16px;
+  background: #fff;
+
+  mat-icon {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+
+    border-radius: 12px;
+    background: #e8f5ed;
+    color: #08783e;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  span {
+    color: #647168;
+    font-size: 12px;
+  }
+
+  strong {
+    margin-top: 2px;
+    font-size: 22px;
+    line-height: 1;
+  }
+}
+
+
+/* =========================================================
+   STUDENT NOTES CARD
+   ========================================================= */
+
+.academic-card {
+  overflow: hidden;
+
+  border: 1px solid #d8e2dc;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.academic-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding: 20px 22px;
+  border-bottom: 1px solid #e4ebe6;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+  }
+
+  p {
+    margin: 5px 0 0;
+    color: #647168;
+    font-size: 13px;
+  }
+}
+
+.note-count {
+  padding: 6px 11px;
+
+  border-radius: 20px;
+  background: #e8f5ed;
+
+  color: #08783e;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   NOTE LIST
+   ========================================================= */
+
+.student-note-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.student-note-item {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+
+  padding: 18px 22px;
+
+  border-bottom: 1px solid #e7ede9;
+
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &:hover {
+    background: #fafcfb;
+  }
+
+  &.overdue {
+    border-left: 4px solid #c62828;
+  }
+
+  &.completed {
+    opacity: 0.72;
+  }
+}
+
+
+/* =========================================================
+   NOTE TYPE ICON
+   ========================================================= */
+
+.note-type-icon {
+  display: grid;
+
+  width: 46px;
+  height: 46px;
+
+  place-items: center;
+
+  border-radius: 14px;
+
+  background: #e7f4ec;
+  color: #08783e;
+
+  &.homework {
+    background: #fff3df;
+    color: #b76800;
+  }
+
+  &.follow-up {
+    background: #fff0e8;
+    color: #c25116;
+  }
+
+  &.class-note {
+    background: #e7f4ec;
+    color: #08783e;
+  }
+
+  mat-icon {
+    margin: 0;
+  }
+}
+
+
+/* =========================================================
+   NOTE CONTENT
+   ========================================================= */
+
+.note-content {
+  min-width: 0;
+
+  .note-title {
+    display: block;
+
+    margin-top: 5px;
+
+    color: #172019;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 6px 0 0;
+
+    overflow: hidden;
+
+    color: #59675e;
+    font-size: 14px;
+
+    text-overflow: ellipsis;
+  }
+}
+
+.note-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+}
+
+.note-type-label {
+  color: #526159;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.note-status {
+  padding: 3px 8px;
+
+  border-radius: 999px;
+
+  background: #fff3df;
+
+  color: #a45a00;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.overdue-status {
+  background: #fde8e8;
+  color: #c62828;
+}
+
+.completed-status {
+  background: #e3f6e9;
+  color: #08783e;
+}
+
+
+/* =========================================================
+   NOTE METADATA
+   ========================================================= */
+
+.note-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+
+  margin-top: 10px;
+
+  color: #6b776f;
+  font-size: 12px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+
+    font-size: 16px;
+  }
+}
+
+.overdue-date {
+  color: #c62828 !important;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.note-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  button[mat-stroked-button] {
+    border-radius: 22px;
+  }
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.academic-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 42px 20px;
+
+  text-align: center;
+
+  > mat-icon {
+    width: 44px;
+    height: 44px;
+
+    margin-bottom: 10px;
+
+    color: #08783e;
+    font-size: 44px;
+  }
+
+  strong {
+    font-size: 16px;
+  }
+
+  span {
+    margin: 5px 0 16px;
+    color: #68766d;
+    font-size: 13px;
+  }
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1000px) {
+  .academic-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 650px) {
+  .academic-section {
+    margin-top: 22px;
+  }
+
+  .section-header {
+    align-items: stretch;
+    flex-direction: column;
+
+    .add-note-button {
+      align-self: flex-start;
+    }
+  }
+
+  .academic-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .academic-stat {
+    min-height: 68px;
+    padding: 12px;
+
+    mat-icon {
+      width: 34px;
+      height: 34px;
+    }
+
+    strong {
+      font-size: 19px;
+    }
+  }
+
+  .academic-card-header {
+    padding: 16px;
+  }
+
+  .student-note-item {
+    grid-template-columns: 42px minmax(0, 1fr);
+
+    padding: 16px;
+  }
+
+  .note-type-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .note-actions {
+    grid-column: 1 / -1;
+
+    justify-content: flex-end;
+
+    padding-top: 4px;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 420px) {
+  .academic-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .note-meta {
+    flex-direction: column;
+    gap: 5px;
+  }
+}

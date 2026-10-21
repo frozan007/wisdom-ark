@@ -1,0 +1,77 @@
+<div class="dialog">
+  <div class="dialog-icon">
+    <mat-icon>undo</mat-icon>
+  </div>
+
+  <h2 mat-dialog-title>
+    Reverse Payment?
+  </h2>
+
+  <mat-dialog-content>
+    <p>
+      This payment will be marked as reversed
+      and excluded from fee calculations.
+    </p>
+
+    <div class="payment-info">
+      <strong>
+        {{
+          payment.students?.student_name
+            || 'Student'
+        }}
+      </strong>
+
+      <span>
+        ₹{{ payment.amount }}
+      </span>
+    </div>
+
+    <label>
+      <span>Reason for reversal *</span>
+
+      <textarea
+        rows="4"
+        [formControl]="form.controls.reason"
+        placeholder="Example: Payment entered by mistake"
+      ></textarea>
+
+      @if (
+        form.controls.reason.touched &&
+        form.controls.reason.invalid
+      ) {
+        <small>
+          Please enter at least 3 characters.
+        </small>
+      }
+    </label>
+
+    <div class="warning">
+      <mat-icon>info</mat-icon>
+
+      <span>
+        The original payment and payment proof
+        will remain in history for record keeping.
+      </span>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="cancel()"
+    >
+      Cancel
+    </button>
+
+    <button
+      mat-flat-button
+      class="reverse-button"
+      type="button"
+      (click)="confirm()"
+    >
+      <mat-icon>undo</mat-icon>
+      Reverse Payment
+    </button>
+  </mat-dialog-actions>
+</div>

@@ -1,0 +1,258 @@
+<section class="schedule-form-page">
+  <header class="page-header">
+    <div>
+      <a
+        class="back-link"
+        routerLink="/app/schedule"
+      >
+        <mat-icon>arrow_back</mat-icon>
+        Schedule
+      </a>
+
+      <span class="eyebrow">Class management</span>
+
+      <h1>
+        {{ editMode() ? 'Edit class' : 'Add class' }}
+      </h1>
+
+      <p>
+        {{
+          editMode()
+            ? 'Update the scheduled class details.'
+            : 'Create a new tuition class.'
+        }}
+      </p>
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (loadingData()) {
+    <div class="loading-state">
+      <mat-spinner diameter="44" />
+      <span>Loading...</span>
+    </div>
+  } @else {
+    <form
+      class="schedule-form"
+      [formGroup]="scheduleForm"
+      (ngSubmit)="submit()"
+    >
+      <section class="form-card">
+        <div class="section-heading">
+          <div>
+            <h2>Class details</h2>
+            <p>
+              Student, subject and session information.
+            </p>
+          </div>
+
+          <mat-icon>school</mat-icon>
+        </div>
+
+        <div class="form-grid">
+          <label class="field full-width">
+            <span>Student</span>
+
+            <select
+              formControlName="student_id"
+              (change)="onStudentChanged()"
+            >
+              <option value="">
+                No specific student
+              </option>
+
+              @for (
+                student of students();
+                track student.id
+              ) {
+                <option [value]="student.id">
+                  {{ student.student_name }}
+                  - {{ student.class_name }}
+                </option>
+              }
+            </select>
+          </label>
+
+          <label class="field full-width">
+            <span>Class title *</span>
+
+            <input
+              type="text"
+              formControlName="title"
+              placeholder="Example: Class 10 Mathematics"
+            />
+
+            @if (
+              hasError('title', 'required') ||
+              hasError('title', 'minlength')
+            ) {
+              <small>
+                Enter a class title with at least
+                2 characters.
+              </small>
+            }
+          </label>
+
+          <label class="field">
+            <span>Subject</span>
+
+            <input
+              type="text"
+              formControlName="subject"
+              placeholder="Mathematics"
+            />
+          </label>
+
+          <label class="field">
+            <span>Class type</span>
+
+            <select formControlName="class_type">
+              <option value="individual">
+                Individual
+              </option>
+
+              <option value="group">
+                Group
+              </option>
+
+              <option value="online">
+                Online
+              </option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="form-card">
+        <div class="section-heading">
+          <div>
+            <h2>Date & time</h2>
+            <p>When this class will take place.</p>
+          </div>
+
+          <mat-icon>schedule</mat-icon>
+        </div>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>Date *</span>
+
+            <input
+              type="date"
+              formControlName="class_date"
+            />
+          </label>
+
+          <div></div>
+
+          <label class="field">
+            <span>Start time *</span>
+
+            <input
+              type="time"
+              formControlName="start_time"
+            />
+          </label>
+
+          <label class="field">
+            <span>End time *</span>
+
+            <input
+              type="time"
+              formControlName="end_time"
+            />
+          </label>
+        </div>
+      </section>
+
+      <section class="form-card">
+        <div class="section-heading">
+          <div>
+            <h2>Additional details</h2>
+            <p>
+              Location, status and optional notes.
+            </p>
+          </div>
+
+          <mat-icon>info</mat-icon>
+        </div>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>Location</span>
+
+            <input
+              type="text"
+              formControlName="location"
+              placeholder="Wisdom Ark Classroom"
+            />
+          </label>
+
+          <label class="field">
+            <span>Status</span>
+
+            <select formControlName="status">
+              <option value="scheduled">
+                Scheduled
+              </option>
+
+              <option value="completed">
+                Completed
+              </option>
+
+              <option value="cancelled">
+                Cancelled
+              </option>
+            </select>
+          </label>
+
+          <label class="field full-width">
+            <span>Description / Notes</span>
+
+            <textarea
+              rows="5"
+              formControlName="description"
+              placeholder="Topics to cover, homework, exam preparation..."
+            ></textarea>
+          </label>
+        </div>
+      </section>
+
+      <footer class="form-actions">
+        <a
+          mat-stroked-button
+          routerLink="/app/schedule"
+        >
+          Cancel
+        </a>
+
+        <button
+          mat-flat-button
+          class="save-button"
+          type="submit"
+          [disabled]="loading()"
+        >
+          @if (loading()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+
+          {{
+            loading()
+              ? 'Saving...'
+              : editMode()
+                ? 'Save changes'
+                : 'Add class'
+          }}
+        </button>
+      </footer>
+    </form>
+  }
+</section>

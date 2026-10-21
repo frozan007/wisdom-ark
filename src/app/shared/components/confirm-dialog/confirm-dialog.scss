@@ -1,0 +1,41 @@
+:host {
+  display: block;
+  min-width: min(380px, calc(100vw - 48px));
+  padding-top: 8px;
+}
+
+.dialog-icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  margin: 20px auto 4px;
+  border-radius: 18px;
+  background: var(--wa-primary-light);
+  color: var(--wa-primary);
+}
+
+.dialog-icon.danger {
+  background: #fee2e2;
+  color: #b42318;
+}
+
+.dialog-icon mat-icon {
+  width: auto;
+  height: auto;
+  font-size: 32px;
+}
+
+h2 {
+  text-align: center;
+}
+
+mat-dialog-content {
+  color: var(--wa-text-secondary);
+  text-align: center;
+}
+
+.danger-button {
+  background: #b42318 !important;
+  color: #ffffff !important;
+}

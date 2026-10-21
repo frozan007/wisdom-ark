@@ -1,0 +1,147 @@
+<mat-sidenav-container class="app-shell">
+  <mat-sidenav
+    class="side-drawer"
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="drawerOpened()"
+    [fixedInViewport]="isMobile()"
+  >
+    <div class="drawer-brand">
+      <img
+        src="assets/branding/wisdom-ark-icon.png"
+        alt="Wisdom Ark"
+      />
+
+      <div>
+        <strong>Wisdom Ark</strong>
+        <span>Tuition Management</span>
+      </div>
+    </div>
+
+    <mat-divider />
+
+    <nav class="drawer-navigation">
+      @for (item of navigationItems; track item.route) {
+        <a
+          mat-list-item
+          [routerLink]="item.route"
+          routerLinkActive="active-navigation-item"
+          [routerLinkActiveOptions]="{
+            exact: item.exact ?? false
+          }"
+          (click)="closeDrawerOnMobile()"
+        >
+          <mat-icon matListItemIcon>
+            {{ item.icon }}
+          </mat-icon>
+
+          <span matListItemTitle>
+            {{ item.label }}
+          </span>
+        </a>
+      }
+    </nav>
+
+    <div class="drawer-footer">
+      <mat-divider />
+
+      <a
+        mat-list-item
+        routerLink="/app/profile"
+        routerLinkActive="active-navigation-item"
+        (click)="closeDrawerOnMobile()"
+      >
+        @if (profileImageUrl()) {
+          <img
+            matListItemIcon
+            class="drawer-profile-image"
+            [src]="profileImageUrl()"
+            alt="Profile"
+          />
+        } @else {
+          <mat-icon matListItemIcon>
+            account_circle
+          </mat-icon>
+        }
+
+        <span matListItemTitle>
+          Profile
+        </span>
+      </a>
+
+      <button
+        mat-list-item
+        type="button"
+        [disabled]="loggingOut()"
+        (click)="logout()"
+      >
+        <mat-icon matListItemIcon>logout</mat-icon>
+
+        <span matListItemTitle>
+          {{ loggingOut() ? 'Logging out...' : 'Logout' }}
+        </span>
+      </button>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="app-content">
+    <mat-toolbar class="top-toolbar">
+      <button
+        mat-icon-button
+        type="button"
+        aria-label="Open navigation"
+        (click)="toggleDrawer()"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <div class="toolbar-brand">
+        <img
+          src="assets/branding/wisdom-ark-icon.png"
+          alt=""
+        />
+
+        <span>Wisdom Ark</span>
+      </div>
+
+      <span class="toolbar-spacer"></span>
+
+      <a
+        mat-icon-button
+        class="toolbar-profile-button"
+        routerLink="/app/profile"
+        aria-label="Open profile"
+      >
+        @if (profileImageUrl()) {
+          <img
+            class="toolbar-profile-image"
+            [src]="profileImageUrl()"
+            alt="Profile"
+          />
+        } @else {
+          <mat-icon>account_circle</mat-icon>
+        }
+      </a>
+    </mat-toolbar>
+
+    <main class="page-content">
+      <router-outlet />
+    </main>
+
+    @if (isMobile()) {
+      <nav class="bottom-navigation">
+        @for (item of navigationItems; track item.route) {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{
+              exact: item.exact ?? false
+            }"
+          >
+            <mat-icon>{{ item.icon }}</mat-icon>
+            <span>{{ item.label }}</span>
+          </a>
+        }
+      </nav>
+    }
+  </mat-sidenav-content>
+</mat-sidenav-container>

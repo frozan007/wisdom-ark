@@ -1,0 +1,440 @@
+<section class="notes-page">
+
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">
+        Academic Tracking
+      </span>
+
+      <h1>Notes</h1>
+
+      <p>
+        Manage homework, class notes,
+        student notes and follow-ups.
+      </p>
+    </div>
+
+    <a
+      mat-flat-button
+      class="add-button"
+      routerLink="/app/notes/new"
+    >
+      <mat-icon>add</mat-icon>
+      Add Note
+    </a>
+  </header>
+
+
+  <section class="summary-grid">
+
+    <button
+      type="button"
+      class="summary-card"
+      (click)="showPending()"
+    >
+      <div class="summary-icon pending">
+        <mat-icon>pending_actions</mat-icon>
+      </div>
+
+      <div>
+        <span>Pending</span>
+
+        <strong>
+          {{ pendingCount() }}
+        </strong>
+      </div>
+    </button>
+
+
+    <button
+      type="button"
+      class="summary-card"
+      (click)="showDueToday()"
+    >
+      <div class="summary-icon today">
+        <mat-icon>today</mat-icon>
+      </div>
+
+      <div>
+        <span>Due Today</span>
+
+        <strong>
+          {{ dueTodayCount() }}
+        </strong>
+      </div>
+    </button>
+
+
+    <button
+      type="button"
+      class="summary-card"
+      (click)="showOverdue()"
+    >
+      <div class="summary-icon overdue">
+        <mat-icon>warning</mat-icon>
+      </div>
+
+      <div>
+        <span>Overdue</span>
+
+        <strong>
+          {{ overdueCount() }}
+        </strong>
+      </div>
+    </button>
+
+
+    <button
+      type="button"
+      class="summary-card"
+      (click)="showCompleted()"
+    >
+      <div class="summary-icon completed">
+        <mat-icon>task_alt</mat-icon>
+      </div>
+
+      <div>
+        <span>Completed</span>
+
+        <strong>
+          {{ completedCount() }}
+        </strong>
+      </div>
+    </button>
+
+  </section>
+
+
+  <section class="filters">
+
+    <div class="search-box">
+      <mat-icon>search</mat-icon>
+
+      <input
+        type="search"
+        placeholder="Search notes or students..."
+        [ngModel]="searchTerm()"
+        (ngModelChange)="
+          searchTerm.set($event)
+        "
+      />
+    </div>
+
+
+    <select
+      [ngModel]="selectedType()"
+      (ngModelChange)="
+        selectedType.set($event)
+      "
+    >
+      <option value="all">
+        All Types
+      </option>
+
+      <option value="general">
+        General Notes
+      </option>
+
+      <option value="student_note">
+        Student Notes
+      </option>
+
+      <option value="class_note">
+        Class Notes
+      </option>
+
+      <option value="homework">
+        Homework
+      </option>
+
+      <option value="follow_up">
+        Follow-ups
+      </option>
+    </select>
+
+
+    <select
+      [ngModel]="selectedStatus()"
+      (ngModelChange)="
+        selectedStatus.set($event)
+      "
+    >
+      <option value="all">
+        All Status
+      </option>
+
+      <option value="pending">
+        Pending
+      </option>
+
+      <option value="due_today">
+        Due Today
+      </option>
+
+      <option value="overdue">
+        Overdue
+      </option>
+
+      <option value="completed">
+        Completed
+      </option>
+    </select>
+
+
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="clearFilters()"
+    >
+      <mat-icon>filter_alt_off</mat-icon>
+      Clear
+    </button>
+
+  </section>
+
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+
+      {{ errorMessage() }}
+    </div>
+  }
+
+
+  @if (loading()) {
+
+    <div class="loading-state">
+      <mat-spinner diameter="44" />
+
+      <span>
+        Loading notes...
+      </span>
+    </div>
+
+  } @else if (
+    filteredNotes().length === 0
+  ) {
+
+    <div class="empty-state">
+
+      <mat-icon>note_alt</mat-icon>
+
+      <strong>
+        No notes found
+      </strong>
+
+      <span>
+        Create a note or change your filters.
+      </span>
+
+      <a
+        mat-flat-button
+        class="add-button"
+        routerLink="/app/notes/new"
+      >
+        <mat-icon>add</mat-icon>
+        Add Note
+      </a>
+
+    </div>
+
+  } @else {
+
+    <section class="notes-list">
+
+      @for (
+        note of filteredNotes();
+        track note.id
+      ) {
+
+        <article
+          class="note-card"
+          [class.overdue-card]="
+            isOverdue(note)
+          "
+          [class.completed-card]="
+            note.status === 'completed'
+          "
+        >
+
+          <div
+            class="note-type-icon"
+            [class.homework]="
+              note.note_type === 'homework'
+            "
+            [class.follow-up]="
+              note.note_type === 'follow_up'
+            "
+          >
+            <mat-icon>
+              {{
+                noteTypeIcon(
+                  note.note_type
+                )
+              }}
+            </mat-icon>
+          </div>
+
+
+          <div class="note-content">
+
+            <div class="note-meta">
+
+              <span class="type-label">
+                {{
+                  noteTypeLabel(
+                    note.note_type
+                  )
+                }}
+              </span>
+
+
+              @if (isOverdue(note)) {
+                <span class="status overdue">
+                  Overdue
+                </span>
+              } @else if (
+                isDueToday(note)
+              ) {
+                <span class="status today">
+                  Due Today
+                </span>
+              } @else if (
+                note.status === 'completed'
+              ) {
+                <span class="status completed">
+                  Completed
+                </span>
+              } @else {
+                <span class="status pending">
+                  Pending
+                </span>
+              }
+
+            </div>
+
+
+            <a
+              class="note-title"
+              [routerLink]="[
+                '/app/notes',
+                note.id
+              ]"
+            >
+              {{ note.title }}
+            </a>
+
+
+            @if (note.content) {
+              <p>
+                {{ note.content }}
+              </p>
+            }
+
+
+            <div class="details">
+
+              @if (note.students) {
+                <span>
+                  <mat-icon>
+                    person
+                  </mat-icon>
+
+                  {{
+                    note.students
+                      .student_name
+                  }}
+                </span>
+              }
+
+
+              @if (note.due_date) {
+                <span
+                  [class.due-overdue]="
+                    isOverdue(note)
+                  "
+                >
+                  <mat-icon>
+                    event
+                  </mat-icon>
+
+                  Due
+                  {{
+                    note.due_date
+                      | date:'d MMM y'
+                  }}
+                </span>
+              }
+
+
+              @if (note.schedules) {
+                <span>
+                  <mat-icon>
+                    school
+                  </mat-icon>
+
+                  {{
+                    note.schedules
+                      .subject ||
+                    note.schedules
+                      .title
+                  }}
+                </span>
+              }
+
+            </div>
+
+          </div>
+
+
+          <div class="note-actions">
+
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="
+                toggleComplete(note)
+              "
+            >
+              <mat-icon>
+                {{
+                  note.status ===
+                    'completed'
+                    ? 'undo'
+                    : 'check'
+                }}
+              </mat-icon>
+
+              {{
+                note.status ===
+                  'completed'
+                  ? 'Reopen'
+                  : 'Complete'
+              }}
+            </button>
+
+
+            <a
+              mat-icon-button
+              [routerLink]="[
+                '/app/notes',
+                note.id,
+                'edit'
+              ]"
+              title="Edit note"
+            >
+              <mat-icon>edit</mat-icon>
+            </a>
+
+          </div>
+
+        </article>
+
+      }
+
+    </section>
+
+  }
+
+</section>

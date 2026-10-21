@@ -1,1 +1,74 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$wisdom-ark-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$green-palette,
+    tertiary: mat.$yellow-palette,
+  ),
+  typography: (
+    brand-family: 'Inter, Roboto, sans-serif',
+    plain-family: 'Inter, Roboto, sans-serif',
+  ),
+  density: (
+    scale: 0,
+  ),
+));
+
+html {
+  @include mat.all-component-themes($wisdom-ark-theme);
+}
+
+:root {
+  --wa-primary: #176b3a;
+  --wa-primary-dark: #0f4f2a;
+  --wa-primary-light: #dceee2;
+
+  --wa-gold: #f4b400;
+  --wa-gold-dark: #b77f00;
+  --wa-gold-light: #fff3c4;
+
+  --wa-background: #fafafa;
+  --wa-surface: #ffffff;
+  --wa-surface-green: #f3f5e8;
+  --wa-surface-gold: #f9f3e2;
+
+  --wa-text-primary: #17211b;
+  --wa-text-secondary: #647067;
+  --wa-border: #dce4de;
+
+  --wa-success: #24864b;
+  --wa-warning: #e58a00;
+  --wa-error: #ba1a1a;
+
+  --wa-radius-small: 12px;
+  --wa-radius-medium: 18px;
+  --wa-radius-large: 28px;
+
+  --wa-shadow-card: 0 10px 32px rgb(23 107 58 / 10%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--wa-background);
+  color: var(--wa-text-primary);
+  font-family: Inter, Roboto, Arial, sans-serif;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}

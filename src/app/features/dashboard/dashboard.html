@@ -1,0 +1,400 @@
+<section class="dashboard">
+  <header class="welcome-section">
+    <div>
+      <span class="eyebrow">Wisdom Ark</span>
+      <h1>Welcome, {{ displayName() }} 👋</h1>
+      <p>Here is an overview of your tuition centre.</p>
+    </div>
+
+    <div class="date-card">
+      <mat-icon>today</mat-icon>
+      <span>{{ today | date: 'EEEE, d MMMM' }}</span>
+    </div>
+  </header>
+
+  <section class="metrics-grid">
+    @for (metric of metrics(); track metric.label) {
+    <article class="metric-card" [class]="metric.modifier">
+      <div class="metric-icon">
+        <mat-icon>{{ metric.icon }}</mat-icon>
+      </div>
+
+      <div>
+        <span>{{ metric.label }}</span>
+        <strong>{{ metric.value }}</strong>
+      </div>
+    </article>
+    }
+  </section>
+
+  <section class="dashboard-grid">
+    <article class="content-card">
+      <header>
+        <div>
+          <h2>Today's schedule</h2>
+          <p>Your upcoming classes will appear here.</p>
+        </div>
+
+        <mat-icon>calendar_month</mat-icon>
+      </header>
+
+      @if (scheduleLoading()) {
+      <div class="empty-state">
+        <span>Loading today's classes...</span>
+      </div>
+      } @else if (todaySchedules().length === 0) {
+      <div class="empty-state">
+        <mat-icon>event_available</mat-icon>
+        <strong>No classes scheduled</strong>
+        <span>
+          Add classes from the Schedule section.
+        </span>
+      </div>
+      } @else {
+      <div class="dashboard-schedule-list">
+        @for (
+        schedule of todaySchedules();
+        track schedule.id
+        ) {
+        <a class="dashboard-schedule-item" routerLink="/app/schedule">
+          <div class="schedule-time">
+            {{
+            formatScheduleTime(
+            schedule.start_time
+            )
+            }}
+          </div>
+
+          <div class="schedule-info">
+            <strong>
+              {{ schedule.title }}
+            </strong>
+
+            <span>
+              {{ schedule.subject || 'General' }}
+
+              @if (schedule.students) {
+              ·
+              {{ schedule.students.student_name }}
+              }
+            </span>
+          </div>
+
+          <mat-icon>chevron_right</mat-icon>
+        </a>
+        }
+      </div>
+      }
+    </article>
+
+    <article class="content-card">
+      <header>
+        <div>
+          <h2>Recent payments</h2>
+          <p>Your latest payment entries will appear here.</p>
+        </div>
+
+        <mat-icon>payments</mat-icon>
+      </header>
+
+      @if (paymentsLoading()) {
+
+      <div class="empty-state">
+        <span>
+          Loading recent payments...
+        </span>
+      </div>
+
+      } @else if (recentPayments().length === 0) {
+
+      <div class="empty-state">
+
+        <mat-icon>receipt_long</mat-icon>
+
+        <strong>
+          No payments recorded
+        </strong>
+
+        <span>
+          Add payments after creating students.
+        </span>
+
+      </div>
+
+      } @else {
+
+      <div class="recent-payment-list">
+
+        @for (
+        payment of recentPayments();
+        track payment.id
+        ) {
+
+        <a class="recent-payment-item" routerLink="/app/payments">
+
+          <div class="payment-method-icon">
+            <mat-icon>
+              {{
+              paymentMethodIcon(
+              payment.payment_mode
+              )
+              }}
+            </mat-icon>
+          </div>
+
+
+          <div class="payment-information">
+
+            <strong>
+              {{
+              payment.students
+              ?.student_name
+              || 'Student'
+              }}
+            </strong>
+
+            <span>
+              {{
+              paymentMethodLabel(
+              payment.payment_mode
+              )
+              }}
+
+              ·
+
+              {{
+              payment.payment_date
+              | date:'d MMM y'
+              }}
+            </span>
+
+          </div>
+
+
+          <strong class="payment-amount">
+            {{
+            payment.amount
+            | currency:'INR':'symbol':'1.0-0'
+            }}
+          </strong>
+
+          <mat-icon class="payment-chevron">
+            chevron_right
+          </mat-icon>
+
+        </a>
+
+        }
+
+      </div>
+
+      }
+    </article>
+  </section>
+
+  <section class="academic-attention">
+
+    <header class="section-header">
+
+      <div>
+        <span class="eyebrow">
+          Academic
+        </span>
+
+        <h2>Academic Attention</h2>
+
+        <p>
+          Homework and follow-ups that
+          need attention.
+        </p>
+      </div>
+
+      <a mat-stroked-button routerLink="/app/notes">
+        View Notes
+        <mat-icon>
+          arrow_forward
+        </mat-icon>
+      </a>
+
+    </header>
+
+
+    @if (academicLoading()) {
+
+    <div class="academic-loading">
+      Loading academic tasks...
+    </div>
+
+    } @else {
+
+    <div class="academic-alert-grid">
+
+      <a class="academic-alert overdue" routerLink="/app/notes" [queryParams]="{
+          filter: 'overdue'
+        }">
+        <div>
+          <mat-icon>warning</mat-icon>
+        </div>
+
+        <span>Overdue</span>
+
+        <strong>
+          {{ overdueAcademicNotes().length }}
+        </strong>
+      </a>
+
+
+      <a class="academic-alert today" routerLink="/app/notes" [queryParams]="{
+          filter: 'due_today'
+        }">
+        <div>
+          <mat-icon>today</mat-icon>
+        </div>
+
+        <span>Due Today</span>
+
+        <strong>
+          {{ dueTodayAcademicNotes().length }}
+        </strong>
+      </a>
+
+
+      <a class="academic-alert follow-up" routerLink="/app/notes" [queryParams]="{
+          type: 'follow_up'
+        }">
+        <div>
+          <mat-icon>
+            notifications
+          </mat-icon>
+        </div>
+
+        <span>Follow-ups</span>
+
+        <strong>
+          {{ pendingFollowUps().length }}
+        </strong>
+      </a>
+
+    </div>
+
+
+    <article class="upcoming-task-card">
+
+      <header>
+        <div>
+          <h3>Upcoming Tasks</h3>
+
+          <p>
+            Next homework and follow-ups.
+          </p>
+        </div>
+      </header>
+
+
+      @if (
+      upcomingAcademicTasks().length === 0
+      ) {
+
+      <div class="academic-empty">
+
+        <mat-icon>
+          task_alt
+        </mat-icon>
+
+        <strong>
+          Nothing pending
+        </strong>
+
+        <span>
+          All academic tasks are up to date.
+        </span>
+
+      </div>
+
+      } @else {
+
+      <div class="dashboard-task-list">
+
+        @for (
+        note of upcomingAcademicTasks();
+        track note.id
+        ) {
+
+        <a class="dashboard-task" [class.overdue]="
+                isAcademicNoteOverdue(note)
+              " [routerLink]="[
+                '/app/notes',
+                note.id
+              ]">
+
+          <div class="task-icon" [class.homework]="
+                  note.note_type ===
+                    'homework'
+                " [class.follow-up]="
+                  note.note_type ===
+                    'follow_up'
+                ">
+            <mat-icon>
+              {{
+              noteTypeIcon(
+              note.note_type
+              )
+              }}
+            </mat-icon>
+          </div>
+
+
+          <div class="task-content">
+
+            <strong>
+              {{ note.title }}
+            </strong>
+
+            <span>
+              {{
+              note.students
+              ?.student_name
+              || 'General'
+              }}
+
+              ·
+
+              {{
+              noteTypeLabel(
+              note.note_type
+              )
+              }}
+            </span>
+
+          </div>
+
+
+          <div class="task-date" [class.overdue]="
+                  isAcademicNoteOverdue(note)
+                ">
+            {{
+            formatTaskDueDate(
+            note.due_date
+            )
+            }}
+          </div>
+
+
+          <mat-icon class="task-chevron">
+            chevron_right
+          </mat-icon>
+
+        </a>
+
+        }
+
+      </div>
+
+      }
+
+    </article>
+
+    }
+
+  </section>
+</section>

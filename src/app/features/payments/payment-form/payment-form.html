@@ -1,0 +1,390 @@
+<section class="payment-form-page">
+  <header class="page-header">
+    <a
+      class="back-link"
+      routerLink="/app/payments"
+    >
+      <mat-icon>arrow_back</mat-icon>
+      Payments
+    </a>
+
+    <span class="eyebrow">
+      Fee collection
+    </span>
+
+    <h1>Add Payment</h1>
+
+    <p>
+      Record a tuition fee payment.
+    </p>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (loadingData()) {
+    <div class="loading-state">
+      <mat-spinner diameter="44" />
+      <span>Loading...</span>
+    </div>
+  } @else {
+    <form
+      class="payment-form"
+      [formGroup]="paymentForm"
+      (ngSubmit)="submit()"
+    >
+      <section class="form-card">
+        <div class="section-heading">
+          <div>
+            <h2>Student & Fee Period</h2>
+
+            <p>
+              Choose the student and month
+              this payment belongs to.
+            </p>
+          </div>
+
+          <mat-icon>school</mat-icon>
+        </div>
+
+        <div class="form-grid">
+          <label class="field full-width">
+            <span>Student *</span>
+
+            <select
+              formControlName="student_id"
+              (change)="studentChanged()"
+            >
+              <option value="">
+                Select student
+              </option>
+
+              @for (
+                student of students();
+                track student.id
+              ) {
+                <option
+                  [value]="student.id"
+                >
+                  {{ student.student_name }}
+                  — {{ student.class_name }}
+                </option>
+              }
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Fee Month *</span>
+
+            <select
+              formControlName="fee_month"
+              (change)="periodChanged()"
+            >
+              @for (
+                month of months;
+                track month.value
+              ) {
+                <option
+                  [value]="month.value"
+                >
+                  {{ month.label }}
+                </option>
+              }
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Fee Year *</span>
+
+            <select
+              formControlName="fee_year"
+              (change)="periodChanged()"
+            >
+              @for (
+                year of years;
+                track year
+              ) {
+                <option [value]="year">
+                  {{ year }}
+                </option>
+              }
+            </select>
+          </label>
+        </div>
+
+        @if (feeStatus(); as fee) {
+          <section class="fee-summary">
+            <div>
+              <span>Monthly Fee</span>
+
+              <strong>
+                {{
+                  fee.monthly_fee
+                    | currency:'INR':'symbol':'1.0-0'
+                }}
+              </strong>
+            </div>
+
+            <div>
+              <span>Already Paid</span>
+
+              <strong>
+                {{
+                  fee.paid_amount
+                    | currency:'INR':'symbol':'1.0-0'
+                }}
+              </strong>
+            </div>
+
+            <div class="remaining">
+              <span>Remaining</span>
+
+              <strong>
+                {{
+                  fee.pending_amount
+                    | currency:'INR':'symbol':'1.0-0'
+                }}
+              </strong>
+            </div>
+          </section>
+        }
+      </section>
+
+      <section class="form-card">
+        <div class="section-heading">
+          <div>
+            <h2>Payment Details</h2>
+
+            <p>
+              Enter the amount and payment method.
+            </p>
+          </div>
+
+          <mat-icon>payments</mat-icon>
+        </div>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>Amount *</span>
+
+            <div class="currency-input">
+              <span>₹</span>
+
+              <input
+                type="number"
+                min="1"
+                step="1"
+                formControlName="amount"
+              />
+            </div>
+          </label>
+
+          <label class="field">
+            <span>Payment Date *</span>
+
+            <input
+              type="date"
+              formControlName="payment_date"
+            />
+          </label>
+        </div>
+
+        <div class="payment-mode-section">
+          <span class="mode-label">
+            Payment Method *
+          </span>
+
+          <div class="mode-options">
+            <label
+              class="mode-option"
+              [class.selected]="
+                paymentForm.controls
+                  .payment_mode.value === 'upi'
+              "
+            >
+              <input
+                type="radio"
+                value="upi"
+                formControlName="payment_mode"
+                (change)="paymentModeChanged()"
+              />
+
+              <mat-icon>qr_code_2</mat-icon>
+
+              <div>
+                <strong>UPI</strong>
+                <span>
+                  Google Pay, PhonePe,
+                  Paytm etc.
+                </span>
+              </div>
+            </label>
+
+            <label
+              class="mode-option"
+              [class.selected]="
+                paymentForm.controls
+                  .payment_mode.value === 'cash'
+              "
+            >
+              <input
+                type="radio"
+                value="cash"
+                formControlName="payment_mode"
+                (change)="paymentModeChanged()"
+              />
+
+              <mat-icon>payments</mat-icon>
+
+              <div>
+                <strong>Cash</strong>
+                <span>
+                  Payment received in hand
+                </span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        @if (
+          paymentForm.controls
+            .payment_mode.value === 'upi'
+        ) {
+          <div class="upi-section">
+            <label class="field">
+              <span>
+                Transaction / UTR Number
+              </span>
+
+              <input
+                type="text"
+                formControlName="reference_number"
+                placeholder="Optional UPI reference number"
+              />
+            </label>
+
+            <div class="proof-section">
+              <span class="proof-label">
+                UPI Screenshot *
+              </span>
+
+              <input
+                #proofInput
+                type="file"
+                hidden
+                accept="
+                  image/jpeg,
+                  image/png,
+                  image/webp
+                "
+                (change)="
+                  onProofSelected($event)
+                "
+              />
+
+              @if (!proofPreview()) {
+                <button
+                  type="button"
+                  class="proof-upload"
+                  (click)="proofInput.click()"
+                >
+                  <mat-icon>
+                    cloud_upload
+                  </mat-icon>
+
+                  <strong>
+                    Upload payment screenshot
+                  </strong>
+
+                  <span>
+                    JPEG, PNG or WebP · Max 5 MB
+                  </span>
+                </button>
+              } @else {
+                <div class="proof-preview">
+                  <img
+                    [src]="proofPreview()"
+                    alt="Payment proof"
+                  />
+
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    (click)="
+                      removeProof(proofInput)
+                    "
+                  >
+                    <mat-icon>delete</mat-icon>
+                    Remove
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </section>
+
+      <section class="form-card">
+        <div class="section-heading">
+          <div>
+            <h2>Remarks</h2>
+
+            <p>
+              Optional additional information.
+            </p>
+          </div>
+
+          <mat-icon>notes</mat-icon>
+        </div>
+
+        <label class="field">
+          <textarea
+            rows="5"
+            formControlName="remarks"
+            placeholder="
+              Example:
+              Paid by parent through Google Pay
+            "
+          ></textarea>
+        </label>
+      </section>
+
+      <footer class="form-actions">
+        <a
+          mat-stroked-button
+          routerLink="/app/payments"
+        >
+          Cancel
+        </a>
+
+        <button
+          mat-flat-button
+          class="save-button"
+          type="submit"
+          [disabled]="loading()"
+        >
+          @if (loading()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            <mat-icon>
+              check_circle
+            </mat-icon>
+          }
+
+          {{
+            loading()
+              ? 'Saving...'
+              : paymentForm.controls
+                  .payment_mode.value === 'cash'
+                ? 'Record Cash Payment'
+                : 'Save Payment'
+          }}
+        </button>
+      </footer>
+    </form>
+  }
+</section>

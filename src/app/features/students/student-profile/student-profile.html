@@ -1,0 +1,544 @@
+<section class="student-profile-page">
+  <a class="back-link" routerLink="/app/students">
+    <mat-icon>arrow_back</mat-icon>
+    Back to students
+  </a>
+
+  @if (errorMessage()) {
+  <div class="error-message">
+    <mat-icon>error</mat-icon>
+    {{ errorMessage() }}
+  </div>
+  }
+
+  @if (loading()) {
+  <div class="loading-state">
+    <mat-spinner diameter="44" />
+    <span>Loading profile...</span>
+  </div>
+  } @else if (student(); as currentStudent) {
+  <section class="profile-header">
+    <div class="profile-identity">
+      <div class="profile-avatar">
+        @if (currentStudent.profile_image_url) {
+        <img [src]="currentStudent.profile_image_url" [alt]="currentStudent.student_name" />
+        } @else {
+        <span>
+          {{
+          currentStudent.student_name
+          .charAt(0)
+          .toUpperCase()
+          }}
+        </span>
+        }
+      </div>
+
+      <div>
+        <div class="name-line">
+          <h1>{{ currentStudent.student_name }}</h1>
+
+          <span class="status" [class]="currentStudent.status">
+            {{ currentStudent.status }}
+          </span>
+        </div>
+
+        <p>
+          {{ currentStudent.class_name }}
+
+          @if (currentStudent.school_name) {
+          · {{ currentStudent.school_name }}
+          }
+        </p>
+
+        <div class="subject-list">
+          @for (
+          subject of currentStudent.subjects;
+          track subject
+          ) {
+          <span>{{ subject }}</span>
+          }
+
+          @if (currentStudent.subjects.length === 0) {
+          <span>No subjects added</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <a mat-stroked-button [routerLink]="[
+            '/app/students',
+            currentStudent.id,
+            'edit'
+          ]">
+        <mat-icon>edit</mat-icon>
+        Edit
+      </a>
+
+      @if (currentStudent.status === 'archived') {
+      <button mat-flat-button class="restore-button" type="button" [disabled]="processing()" (click)="restore()">
+        <mat-icon>restore</mat-icon>
+        Restore
+      </button>
+      } @else {
+      <button mat-stroked-button type="button" [disabled]="processing()" (click)="archive()">
+        <mat-icon>archive</mat-icon>
+        Archive
+      </button>
+      }
+    </div>
+  </section>
+
+  <section class="quick-actions">
+    <button type="button" [disabled]="!currentStudent.primary_phone" (click)="callStudent()">
+      <mat-icon>call</mat-icon>
+
+      <div>
+        <strong>Call parent</strong>
+        <span>{{ currentStudent.primary_phone }}</span>
+      </div>
+    </button>
+
+    <button type="button" [disabled]="!currentStudent.email" (click)="emailStudent()">
+      <mat-icon>mail</mat-icon>
+
+      <div>
+        <strong>Email</strong>
+        <span>
+          {{ currentStudent.email || 'Not provided' }}
+        </span>
+      </div>
+    </button>
+
+    <div>
+      <mat-icon>payments</mat-icon>
+
+      <div>
+        <strong>Monthly fee</strong>
+        <span>
+          {{
+          currentStudent.monthly_fee
+          | currency:'INR':'symbol':'1.0-0'
+          }}
+        </span>
+      </div>
+    </div>
+
+    <div>
+      <mat-icon>event</mat-icon>
+
+      <div>
+        <strong>Joined</strong>
+        <span>
+          {{
+          currentStudent.joining_date
+          | date:'d MMMM y'
+          }}
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="profile-grid">
+    <article class="details-card">
+      <header>
+        <h2>Student information</h2>
+        <mat-icon>school</mat-icon>
+      </header>
+
+      <dl>
+        <div>
+          <dt>Date of birth</dt>
+          <dd>
+            {{
+            currentStudent.date_of_birth
+            ? (currentStudent.date_of_birth
+            | date:'d MMMM y')
+            : 'Not provided'
+            }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Gender</dt>
+          <dd>
+            {{
+            currentStudent.gender
+            ? currentStudent.gender.replaceAll('_', ' ')
+            : 'Not provided'
+            }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>School</dt>
+          <dd>
+            {{ currentStudent.school_name || 'Not provided' }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Class / Grade</dt>
+          <dd>{{ currentStudent.class_name }}</dd>
+        </div>
+      </dl>
+    </article>
+
+    <article class="details-card">
+      <header>
+        <h2>Parent or guardian</h2>
+        <mat-icon>family_restroom</mat-icon>
+      </header>
+
+      <dl>
+        <div>
+          <dt>Name</dt>
+          <dd>{{ currentStudent.parent_name }}</dd>
+        </div>
+
+        <div>
+          <dt>Primary phone</dt>
+          <dd>{{ currentStudent.primary_phone }}</dd>
+        </div>
+
+        <div>
+          <dt>Alternative phone</dt>
+          <dd>
+            {{
+            currentStudent.alternative_phone ||
+            'Not provided'
+            }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Email</dt>
+          <dd>
+            {{ currentStudent.email || 'Not provided' }}
+          </dd>
+        </div>
+
+        <div class="full-detail">
+          <dt>Address</dt>
+          <dd>
+            {{ currentStudent.address || 'Not provided' }}
+          </dd>
+        </div>
+      </dl>
+    </article>
+
+    <article class="details-card">
+      <header>
+        <h2>Tuition details</h2>
+        <mat-icon>account_balance_wallet</mat-icon>
+      </header>
+
+      <dl>
+        <div>
+          <dt>Monthly fee</dt>
+          <dd>
+            {{
+            currentStudent.monthly_fee
+            | currency:'INR':'symbol':'1.0-0'
+            }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Payment due day</dt>
+          <dd>
+            {{
+            currentStudent.payment_due_day
+            ? 'Day ' + currentStudent.payment_due_day
+            : 'Not configured'
+            }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Status</dt>
+          <dd>{{ currentStudent.status }}</dd>
+        </div>
+
+        <div>
+          <dt>Last updated</dt>
+          <dd>
+            {{
+            currentStudent.updated_at
+            | date:'d MMM y, h:mm a'
+            }}
+          </dd>
+        </div>
+      </dl>
+    </article>
+
+    <article class="details-card notes-card">
+      <header>
+        <h2>General notes</h2>
+        <mat-icon>notes</mat-icon>
+      </header>
+
+      <p>
+        {{
+        currentStudent.notes ||
+        'No general notes have been added.'
+        }}
+      </p>
+    </article>
+  </section>
+
+  <section class="academic-section">
+
+    <header class="section-header">
+      <div>
+        <span class="section-eyebrow">Academic</span>
+
+        <h2>Academic Tracking</h2>
+
+        <p>
+          Homework, class notes and follow-ups for this student.
+        </p>
+      </div>
+
+      <a mat-flat-button class="add-note-button" routerLink="/app/notes/new" [queryParams]="{
+        studentId: currentStudent.id
+      }">
+        <mat-icon>add</mat-icon>
+        Add Note
+      </a>
+    </header>
+
+
+    <!-- SUMMARY -->
+
+    <div class="academic-summary">
+
+      <article class="academic-stat">
+        <mat-icon>pending_actions</mat-icon>
+
+        <div>
+          <span>Pending</span>
+          <strong>{{ pendingAcademicItems().length }}</strong>
+        </div>
+      </article>
+
+      <article class="academic-stat">
+        <mat-icon>warning</mat-icon>
+
+        <div>
+          <span>Overdue</span>
+          <strong>{{ overdueNotes().length }}</strong>
+        </div>
+      </article>
+
+      <article class="academic-stat">
+        <mat-icon>assignment</mat-icon>
+
+        <div>
+          <span>Homework</span>
+          <strong>{{ pendingHomework().length }}</strong>
+        </div>
+      </article>
+
+      <article class="academic-stat">
+        <mat-icon>task_alt</mat-icon>
+
+        <div>
+          <span>Completed</span>
+          <strong>{{ completedAcademicItems().length }}</strong>
+        </div>
+      </article>
+
+    </div>
+
+
+    <!-- NOTES -->
+
+    <article class="academic-card">
+
+      <header class="academic-card-header">
+        <div>
+          <h3>Student Notes</h3>
+
+          <p>
+            Recent academic activity for
+            {{ currentStudent.student_name }}.
+          </p>
+        </div>
+
+        <span class="note-count">
+          {{ studentNotes().length }}
+          {{ studentNotes().length === 1 ? 'note' : 'notes' }}
+        </span>
+      </header>
+
+
+      @if (studentNotes().length === 0) {
+
+      <div class="academic-empty">
+        <mat-icon>note_alt</mat-icon>
+
+        <strong>No notes yet</strong>
+
+        <span>
+          Add homework, class notes or follow-ups
+          for this student.
+        </span>
+
+        <a mat-stroked-button routerLink="/app/notes/new" [queryParams]="{
+            studentId: currentStudent.id
+          }">
+          <mat-icon>add</mat-icon>
+          Add first note
+        </a>
+      </div>
+
+      } @else {
+
+      <div class="student-note-list">
+
+        @for (note of studentNotes(); track note.id) {
+
+        <div class="student-note-item" [class.overdue]="isNoteOverdue(note)"
+          [class.completed]="note.status === 'completed'">
+
+          <!-- ICON -->
+
+          <div class="note-type-icon" [class.homework]="note.note_type === 'homework'"
+            [class.follow-up]="note.note_type === 'follow_up'" [class.class-note]="note.note_type === 'class_note'">
+            <mat-icon>
+              {{ noteTypeIcon(note.note_type) }}
+            </mat-icon>
+          </div>
+
+
+          <!-- CONTENT -->
+
+          <div class="note-content">
+
+            <div class="note-heading">
+
+              <span class="note-type-label">
+                {{ noteTypeLabel(note.note_type) }}
+              </span>
+
+              @if (isNoteOverdue(note)) {
+              <span class="note-status overdue-status">
+                Overdue
+              </span>
+              } @else {
+              <span class="note-status" [class.completed-status]="
+                      note.status === 'completed'
+                    ">
+                {{
+                note.status === 'completed'
+                ? 'Completed'
+                : 'Pending'
+                }}
+              </span>
+              }
+
+            </div>
+
+
+            <strong class="note-title">
+              {{ note.title }}
+            </strong>
+
+
+            @if (note.content) {
+            <p>
+              {{ note.content }}
+            </p>
+            }
+
+
+            <div class="note-meta">
+
+              @if (note.due_date) {
+              <span [class.overdue-date]="isNoteOverdue(note)">
+                <mat-icon>calendar_today</mat-icon>
+
+                Due
+                {{
+                note.due_date
+                | date:'d MMM y'
+                }}
+              </span>
+              }
+
+              <span>
+                <mat-icon>schedule</mat-icon>
+
+                Added
+                {{
+                note.created_at
+                | date:'d MMM y'
+                }}
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <!-- ACTIONS -->
+
+          <div class="note-actions">
+
+            <button mat-stroked-button type="button" (click)="toggleNoteStatus(note)">
+              <mat-icon>
+                {{
+                note.status === 'completed'
+                ? 'undo'
+                : 'check'
+                }}
+              </mat-icon>
+
+              {{
+              note.status === 'completed'
+              ? 'Reopen'
+              : 'Complete'
+              }}
+            </button>
+
+
+            <a mat-icon-button [routerLink]="[
+                  '/app/notes',
+                  note.id,
+                  'edit'
+                ]" aria-label="Edit note">
+              <mat-icon>edit</mat-icon>
+            </a>
+
+          </div>
+
+        </div>
+
+        }
+
+      </div>
+
+      }
+
+    </article>
+
+  </section>
+
+  @if (currentStudent.status === 'archived') {
+  <section class="danger-zone">
+    <div>
+      <h2>Danger zone</h2>
+      <p>
+        Permanently deleting a student cannot be undone.
+      </p>
+    </div>
+
+    <button mat-flat-button type="button" class="delete-button" [disabled]="processing()" (click)="permanentlyDelete()">
+      <mat-icon>delete_forever</mat-icon>
+      Delete permanently
+    </button>
+  </section>
+  }
+  }
+</section>

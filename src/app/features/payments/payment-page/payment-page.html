@@ -1,0 +1,408 @@
+<section class="payment-page">
+    <header class="page-header">
+        <div>
+            <span class="eyebrow">
+                Fee management
+            </span>
+
+            <h1>Payments</h1>
+
+            <p>
+                Track tuition fees, pending balances
+                and payment history.
+            </p>
+        </div>
+        <a mat-stroked-button routerLink="/app/payments/report">
+            <mat-icon>analytics</mat-icon>
+            Monthly Report
+        </a>
+        <a mat-flat-button class="add-button" routerLink="/app/payments/new">
+            <mat-icon>add</mat-icon>
+            Add Payment
+        </a>
+    </header>
+
+    <section class="month-toolbar">
+        <div>
+            <mat-icon>calendar_month</mat-icon>
+
+            <strong>
+                {{ monthName() }}
+                {{ selectedYear }}
+            </strong>
+        </div>
+
+        <div class="month-selectors">
+            <select [(ngModel)]="selectedMonth" (change)="monthChanged()">
+                @for (
+                month of months;
+                track month.value
+                ) {
+                <option [value]="month.value">
+                    {{ month.label }}
+                </option>
+                }
+            </select>
+
+            <select [(ngModel)]="selectedYear" (change)="monthChanged()">
+                @for (year of years; track year) {
+                <option [value]="year">
+                    {{ year }}
+                </option>
+                }
+            </select>
+        </div>
+    </section>
+
+    @if (errorMessage()) {
+    <div class="error-message">
+        <mat-icon>error</mat-icon>
+        {{ errorMessage() }}
+    </div>
+    }
+
+    @if (loading()) {
+    <div class="loading-state">
+        <mat-spinner diameter="44" />
+        <span>Loading payment data...</span>
+    </div>
+    } @else if (summary(); as currentSummary) {
+    <section class="summary-grid">
+        <article class="summary-card collected">
+            <div class="summary-icon">
+                <mat-icon>
+                    account_balance_wallet
+                </mat-icon>
+            </div>
+
+            <div>
+                <span>Collected</span>
+
+                <strong>
+                    {{
+                    currentSummary.collectedAmount
+                    | currency:'INR':'symbol':'1.0-0'
+                    }}
+                </strong>
+            </div>
+        </article>
+
+        <article class="summary-card pending">
+            <div class="summary-icon">
+                <mat-icon>
+                    pending_actions
+                </mat-icon>
+            </div>
+
+            <div>
+                <span>Pending</span>
+
+                <strong>
+                    {{
+                    currentSummary.pendingAmount
+                    | currency:'INR':'symbol':'1.0-0'
+                    }}
+                </strong>
+            </div>
+        </article>
+
+        <article class="summary-card paid">
+            <div class="summary-icon">
+                <mat-icon>task_alt</mat-icon>
+            </div>
+
+            <div>
+                <span>Paid Students</span>
+
+                <strong>
+                    {{ currentSummary.paidStudents }}
+                </strong>
+            </div>
+        </article>
+
+        <article class="summary-card students-pending">
+            <div class="summary-icon">
+                <mat-icon>groups</mat-icon>
+            </div>
+
+            <div>
+                <span>Pending Students</span>
+
+                <strong>
+                    {{
+                    currentSummary.pendingStudents +
+                    currentSummary.partiallyPaidStudents
+                    }}
+                </strong>
+            </div>
+        </article>
+    </section>
+
+    <nav class="payment-tabs">
+        <button type="button" [class.active]="activeTab() === 'pending'" (click)="showPending()">
+            <mat-icon>pending_actions</mat-icon>
+            Pending Fees
+        </button>
+
+        <button type="button" [class.active]="activeTab() === 'paid'" (click)="showPaid()">
+            <mat-icon>task_alt</mat-icon>
+            Paid Fees
+        </button>
+
+        <button type="button" [class.active]="activeTab() === 'history'" (click)="showHistory()">
+            <mat-icon>history</mat-icon>
+            History
+        </button>
+    </nav>
+
+    @if (activeTab() === 'pending') {
+    <section class="content-card">
+        <header class="section-header">
+            <div>
+                <h2>Pending Fees</h2>
+                <p>
+                    Students with outstanding fees for
+                    {{ monthName() }} {{ selectedYear }}.
+                </p>
+            </div>
+        </header>
+
+        @if (pendingStudents().length === 0) {
+        <div class="empty-state">
+            <mat-icon>celebration</mat-icon>
+
+            <strong>
+                No pending fees
+            </strong>
+
+            <span>
+                Everyone is paid for this month.
+            </span>
+        </div>
+        } @else {
+        <div class="fee-list">
+            @for (
+            student of pendingStudents();
+            track student.student_id
+            ) {
+            <article class="fee-row">
+                <div class="student-avatar">
+                    {{
+                    student.student_name
+                    .charAt(0)
+                    .toUpperCase()
+                    }}
+                </div>
+
+                <div class="fee-student">
+                    <strong>
+                        {{ student.student_name }}
+                    </strong>
+
+                    <span>
+                        {{ student.class_name }}
+                    </span>
+                </div>
+
+                <div class="fee-progress">
+                    <span>
+                        Paid
+                        {{
+                        student.paid_amount
+                        | currency:'INR':'symbol':'1.0-0'
+                        }}
+                        /
+                        {{
+                        student.monthly_fee
+                        | currency:'INR':'symbol':'1.0-0'
+                        }}
+                    </span>
+
+                    <div class="progress-track">
+                        <div class="progress-bar" [style.width.%]="
+                        student.monthly_fee > 0
+                          ? (
+                              student.paid_amount /
+                              student.monthly_fee
+                            ) * 100
+                          : 100
+                      "></div>
+                    </div>
+                </div>
+
+                <div class="pending-amount">
+                    <span>Pending</span>
+
+                    <strong>
+                        {{
+                        student.pending_amount
+                        | currency:'INR':'symbol':'1.0-0'
+                        }}
+                    </strong>
+                </div>
+
+                <a mat-flat-button class="collect-button" [routerLink]="['/app/payments/new']" [queryParams]="{
+                    student: student.student_id,
+                    month: selectedMonth,
+                    year: selectedYear
+                  }">
+                    Collect Fee
+                </a>
+            </article>
+            }
+        </div>
+        }
+    </section>
+    }
+
+    @if (activeTab() === 'paid') {
+    <section class="content-card">
+        <header class="section-header">
+            <div>
+                <h2>Paid Fees</h2>
+
+                <p>
+                    Students fully paid for this month.
+                </p>
+            </div>
+        </header>
+
+        @if (paidStudents().length === 0) {
+        <div class="empty-state">
+            <mat-icon>payments</mat-icon>
+
+            <strong>
+                No completed fee payments yet
+            </strong>
+        </div>
+        } @else {
+        <div class="fee-list">
+            @for (
+            student of paidStudents();
+            track student.student_id
+            ) {
+            <article class="fee-row paid-row">
+                <div class="student-avatar">
+                    {{
+                    student.student_name
+                    .charAt(0)
+                    .toUpperCase()
+                    }}
+                </div>
+
+                <div class="fee-student">
+                    <strong>
+                        {{ student.student_name }}
+                    </strong>
+
+                    <span>
+                        {{ student.class_name }}
+                    </span>
+                </div>
+
+                <div class="paid-badge">
+                    <mat-icon>check_circle</mat-icon>
+                    Paid
+                </div>
+
+                <div class="pending-amount">
+                    <span>Amount</span>
+
+                    <strong>
+                        {{
+                        student.paid_amount
+                        | currency:'INR':'symbol':'1.0-0'
+                        }}
+                    </strong>
+                </div>
+            </article>
+            }
+        </div>
+        }
+    </section>
+    }
+
+    @if (activeTab() === 'history') {
+    <section class="content-card">
+        <header class="section-header">
+            <div>
+                <h2>Payment History</h2>
+
+                <p>
+                    All payment entries recorded during
+                    {{ monthName() }} {{ selectedYear }}.
+                </p>
+            </div>
+
+            <a mat-stroked-button routerLink="/app/payments/history">
+                Full History
+            </a>
+        </header>
+
+        @if (payments().length === 0) {
+        <div class="empty-state">
+            <mat-icon>receipt_long</mat-icon>
+
+            <strong>
+                No payments recorded
+            </strong>
+        </div>
+        } @else {
+        <div class="payment-history-list">
+            @for (
+            payment of payments();
+            track payment.id
+            ) {
+            <article class="history-row">
+                <div class="payment-mode-icon">
+                    <mat-icon>
+                        {{
+                        payment.payment_mode === 'upi'
+                        ? 'qr_code_2'
+                        : 'payments'
+                        }}
+                    </mat-icon>
+                </div>
+
+                <div class="history-student">
+                    <strong>
+                        {{
+                        payment.students?.student_name
+                        || 'Student'
+                        }}
+                    </strong>
+
+                    <span>
+                        {{
+                        payment.payment_date
+                        | date:'d MMM y'
+                        }}
+                        ·
+                        {{
+                        payment.payment_mode
+                        | titlecase
+                        }}
+                    </span>
+                </div>
+
+                <strong class="history-amount">
+                    {{
+                    payment.amount
+                    | currency:'INR':'symbol':'1.0-0'
+                    }}
+                </strong>
+
+                @if (payment.proof_image_path) {
+                <button mat-stroked-button type="button" (click)="viewProof(payment)">
+                    <mat-icon>image</mat-icon>
+                    Proof
+                </button>
+                }
+            </article>
+            }
+        </div>
+        }
+    </section>
+    }
+    }
+</section>

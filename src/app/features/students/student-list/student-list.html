@@ -1,0 +1,212 @@
+<section class="students-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">Student management</span>
+      <h1>Students</h1>
+      <p>
+        Manage student profiles, fees, classes and contact
+        information.
+      </p>
+    </div>
+
+    <a
+      mat-flat-button
+      class="add-button"
+      routerLink="/app/students/new"
+    >
+      <mat-icon>person_add</mat-icon>
+      Add student
+    </a>
+  </header>
+
+  <section class="filters">
+    <div class="search-box">
+      <mat-icon>search</mat-icon>
+
+      <input
+        type="search"
+        [(ngModel)]="searchText"
+        (keyup.enter)="search()"
+        placeholder="Search name, parent, phone or class"
+      />
+
+      <button
+        mat-icon-button
+        type="button"
+        aria-label="Search"
+        (click)="search()"
+      >
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+    </div>
+
+    <select
+      [(ngModel)]="selectedStatus"
+      (change)="statusChanged()"
+    >
+      <option value="active">Active students</option>
+      <option value="inactive">Inactive students</option>
+      <option value="archived">Archived students</option>
+      <option value="all">All students</option>
+    </select>
+  </section>
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="42" />
+      <span>Loading students...</span>
+    </div>
+  } @else if (students().length === 0) {
+    <div class="empty-state">
+      <mat-icon>school</mat-icon>
+      <h2>No students found</h2>
+      <p>
+        Add your first student or change your search filters.
+      </p>
+
+      <a mat-flat-button routerLink="/app/students/new">
+        Add first student
+      </a>
+    </div>
+  } @else {
+    <div class="student-grid">
+      @for (student of students(); track student.id) {
+        <article class="student-card">
+          <a
+            class="profile-link"
+            [routerLink]="['/app/students', student.id]"
+          >
+            <div class="avatar">
+              @if (student.profile_image_url) {
+                <img
+                  [src]="student.profile_image_url"
+                  [alt]="student.student_name"
+                />
+              } @else {
+                <span>
+                  {{ student.student_name.charAt(0).toUpperCase() }}
+                </span>
+              }
+            </div>
+
+            <div class="student-summary">
+              <div class="name-row">
+                <h2>{{ student.student_name }}</h2>
+
+                <span
+                  class="status"
+                  [class]="student.status"
+                >
+                  {{ student.status }}
+                </span>
+              </div>
+
+              <p>
+                {{ student.class_name }}
+                @if (student.school_name) {
+                  · {{ student.school_name }}
+                }
+              </p>
+            </div>
+          </a>
+
+          <div class="student-details">
+            <div>
+              <mat-icon>person</mat-icon>
+              <span>{{ student.parent_name }}</span>
+            </div>
+
+            <div>
+              <mat-icon>phone</mat-icon>
+              <span>{{ student.primary_phone }}</span>
+            </div>
+
+            <div>
+              <mat-icon>payments</mat-icon>
+              <span>
+                {{ student.monthly_fee | currency:'INR':'symbol':'1.0-0' }}
+                / month
+              </span>
+            </div>
+
+            <div>
+              <mat-icon>event</mat-icon>
+              <span>
+                Joined
+                {{ student.joining_date | date:'d MMM y' }}
+              </span>
+            </div>
+          </div>
+
+          <footer>
+            <a
+              mat-button
+              [routerLink]="['/app/students', student.id]"
+            >
+              View profile
+            </a>
+
+            <button
+              mat-icon-button
+              [matMenuTriggerFor]="studentMenu"
+              aria-label="Student actions"
+            >
+              <mat-icon>more_vert</mat-icon>
+            </button>
+
+            <mat-menu #studentMenu="matMenu">
+              <a
+                mat-menu-item
+                [routerLink]="[
+                  '/app/students',
+                  student.id,
+                  'edit'
+                ]"
+              >
+                <mat-icon>edit</mat-icon>
+                <span>Edit</span>
+              </a>
+
+              @if (student.status === 'archived') {
+                <button
+                  mat-menu-item
+                  type="button"
+                  (click)="restore(student)"
+                >
+                  <mat-icon>restore</mat-icon>
+                  <span>Restore</span>
+                </button>
+
+                <button
+                  mat-menu-item
+                  type="button"
+                  class="danger-action"
+                  (click)="permanentlyDelete(student)"
+                >
+                  <mat-icon>delete_forever</mat-icon>
+                  <span>Delete permanently</span>
+                </button>
+              } @else {
+                <button
+                  mat-menu-item
+                  type="button"
+                  (click)="archive(student)"
+                >
+                  <mat-icon>archive</mat-icon>
+                  <span>Archive</span>
+                </button>
+              }
+            </mat-menu>
+          </footer>
+        </article>
+      }
+    </div>
+  }
+</section>

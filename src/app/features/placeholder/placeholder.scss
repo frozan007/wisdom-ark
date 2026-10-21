@@ -1,0 +1,33 @@
+.placeholder-card {
+  max-width: 560px;
+  margin: 60px auto;
+  padding: 42px 28px;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-large);
+  background: var(--wa-surface);
+  box-shadow: var(--wa-shadow-card);
+  text-align: center;
+}
+
+.placeholder-icon {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 18px;
+  border-radius: 22px;
+  background: var(--wa-gold-light);
+  color: var(--wa-gold-dark);
+}
+
+.placeholder-icon span {
+  font-size: 34px;
+}
+
+h1 {
+  margin: 0;
+}
+
+p {
+  color: var(--wa-text-secondary);
+}

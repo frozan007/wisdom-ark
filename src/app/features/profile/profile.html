@@ -1,0 +1,196 @@
+<section class="profile-page">
+
+  @if (errorMessage()) {
+  <div class="message error">
+    <mat-icon>error</mat-icon>
+    {{ errorMessage() }}
+  </div>
+  }
+
+  @if (successMessage()) {
+  <div class="message success">
+    <mat-icon>check_circle</mat-icon>
+    {{ successMessage() }}
+  </div>
+  }
+
+  @if (loading()) {
+
+  <div class="loading-state">
+    <mat-spinner diameter="44" />
+    <span>Loading profile...</span>
+  </div>
+
+  } @else {
+
+  <article class="profile-card">
+
+    <div class="profile-header">
+
+      <div class="profile-avatar-section">
+
+        <div class="profile-avatar">
+
+          @if (profileImageUrl()) {
+
+          <img [src]="profileImageUrl()" alt="Profile photo" />
+
+          } @else {
+
+          <mat-icon>person</mat-icon>
+
+          }
+
+        </div>
+
+
+        <input #profileImageInput type="file" hidden accept="
+      image/jpeg,
+      image/png,
+      image/webp
+    " (change)="
+      onProfileImageSelected($event)
+    " />
+
+
+        <div class="avatar-actions">
+
+          <button mat-stroked-button type="button" [disabled]="uploadingImage()" (click)="
+        profileImageInput.click()
+      ">
+            <mat-icon>
+              photo_camera
+            </mat-icon>
+
+            {{
+            uploadingImage()
+            ? 'Uploading...'
+            : profileImageUrl()
+            ? 'Change Photo'
+            : 'Upload Photo'
+            }}
+          </button>
+
+
+          @if (profileImageUrl()) {
+
+          <button mat-icon-button type="button" class="remove-avatar-button" [disabled]="uploadingImage()"
+            aria-label="Remove profile photo" (click)="
+          removeProfileImage()
+        ">
+            <mat-icon>
+              delete
+            </mat-icon>
+          </button>
+
+          }
+
+        </div>
+
+      </div>
+
+      <div>
+        <span class="eyebrow">
+          Account
+        </span>
+
+        <h1>
+          {{ form.controls.full_name.value }}
+        </h1>
+
+        <p>
+          {{ email() }}
+        </p>
+      </div>
+
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()">
+
+      <div class="form-grid">
+
+        <label>
+          <span>Full Name *</span>
+
+          <input type="text" formControlName="full_name" />
+        </label>
+
+        <label>
+          <span>
+            Tuition Centre Name
+          </span>
+
+          <input type="text" formControlName="tuition_name" placeholder="Wisdom Ark" />
+        </label>
+
+        <label>
+          <span>Phone</span>
+
+          <input type="tel" formControlName="phone" maxlength="10" placeholder="10-digit number" />
+        </label>
+
+        <label>
+          <span>Email</span>
+
+          <input type="email" [value]="email()" disabled />
+        </label>
+
+        <label class="full-width">
+          <span>Address</span>
+
+          <textarea rows="4" formControlName="address" placeholder="Tuition centre address"></textarea>
+        </label>
+
+      </div>
+
+
+      <div class="account-info">
+
+        <div>
+          <span>Role</span>
+          <strong>
+            Tuition Administrator
+          </strong>
+        </div>
+
+        <div>
+          <span>Authentication</span>
+          <strong>
+            Supabase Email Login
+          </strong>
+        </div>
+
+      </div>
+
+
+      <div class="actions">
+
+        <button mat-flat-button type="submit" [disabled]="saving()">
+          <mat-icon>save</mat-icon>
+
+          {{
+          saving()
+          ? 'Saving...'
+          : 'Save Profile'
+          }}
+        </button>
+
+        <button mat-stroked-button type="button" [disabled]="loggingOut()" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+
+          {{
+          loggingOut()
+          ? 'Logging out...'
+          : 'Logout'
+          }}
+        </button>
+
+      </div>
+
+    </form>
+
+  </article>
+
+  }
+
+</section>

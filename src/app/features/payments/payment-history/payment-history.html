@@ -1,0 +1,382 @@
+<section class="history-page">
+  <header class="page-header">
+    <div>
+      <a
+        class="back-link"
+        routerLink="/app/payments"
+      >
+        <mat-icon>arrow_back</mat-icon>
+        Payments
+      </a>
+
+      <span class="eyebrow">
+        Financial records
+      </span>
+
+      <h1>Payment History</h1>
+
+      <p>
+        Search, review and manage all
+        recorded payments.
+      </p>
+    </div>
+
+    <a
+      mat-flat-button
+      class="add-button"
+      routerLink="/app/payments/new"
+    >
+      <mat-icon>add</mat-icon>
+      Add Payment
+    </a>
+  </header>
+
+  <section class="filters">
+    <div class="search-box">
+      <mat-icon>search</mat-icon>
+
+      <input
+        type="search"
+        placeholder="Search student, UTR or remarks..."
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+      />
+    </div>
+
+    <select
+      [ngModel]="selectedMethod()"
+      (ngModelChange)="selectedMethod.set($event)"
+    >
+      <option value="all">
+        All Methods
+      </option>
+
+      <option value="upi">
+        UPI
+      </option>
+
+      <option value="cash">
+        Cash
+      </option>
+    </select>
+
+    <select
+      [ngModel]="selectedStatus()"
+      (ngModelChange)="selectedStatus.set($event)"
+    >
+      <option value="all">
+        All Status
+      </option>
+
+      <option value="active">
+        Active
+      </option>
+
+      <option value="reversed">
+        Reversed
+      </option>
+    </select>
+
+    <select
+      [ngModel]="selectedMonth()"
+      (ngModelChange)="selectedMonth.set(+$event)"
+    >
+      @for (
+        month of months;
+        track month.value
+      ) {
+        <option [value]="month.value">
+          {{ month.label }}
+        </option>
+      }
+    </select>
+
+    <select
+      [ngModel]="selectedYear()"
+      (ngModelChange)="selectedYear.set(+$event)"
+    >
+      @for (year of years; track year) {
+        <option [value]="year">
+          {{
+            year === 0
+              ? 'All Years'
+              : year
+          }}
+        </option>
+      }
+    </select>
+
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="clearFilters()"
+    >
+      <mat-icon>filter_alt_off</mat-icon>
+      Clear
+    </button>
+  </section>
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="44" />
+
+      <span>
+        Loading payment history...
+      </span>
+    </div>
+  } @else {
+    <section class="history-card">
+      <header class="history-summary">
+        <div>
+          <span>Records</span>
+
+          <strong>
+            {{ filteredPayments().length }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Active payment total</span>
+
+          <strong>
+            {{
+              visibleTotal()
+                | currency:'INR':'symbol':'1.0-0'
+            }}
+          </strong>
+        </div>
+      </header>
+
+      @if (
+        filteredPayments().length === 0
+      ) {
+        <div class="empty-state">
+          <mat-icon>receipt_long</mat-icon>
+
+          <strong>
+            No payments found
+          </strong>
+
+          <span>
+            Try changing your filters.
+          </span>
+        </div>
+      } @else {
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Fee Period</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Payment Date</th>
+                <th>Reference</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (
+                payment of filteredPayments();
+                track payment.id
+              ) {
+                <tr
+                  [class.reversed-row]="
+                    payment.is_reversed
+                  "
+                >
+                  <td>
+                    <div class="student-cell">
+                      <div class="avatar">
+                        {{
+                          (
+                            payment.students
+                              ?.student_name
+                              || 'S'
+                          )
+                            .charAt(0)
+                            .toUpperCase()
+                        }}
+                      </div>
+
+                      <div>
+                        <strong>
+                          {{
+                            payment.students
+                              ?.student_name
+                              || 'Student'
+                          }}
+                        </strong>
+
+                        <span>
+                          {{
+                            payment.students
+                              ?.class_name
+                              || ''
+                          }}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td>
+                    {{
+                      monthName(
+                        payment.fee_month
+                      )
+                    }}
+                    {{ payment.fee_year }}
+                  </td>
+
+                  <td>
+                    <strong>
+                      {{
+                        payment.amount
+                          | currency:'INR':'symbol':'1.0-0'
+                      }}
+                    </strong>
+                  </td>
+
+                  <td>
+                    <span
+                      class="method-badge"
+                      [class.upi]="
+                        payment.payment_mode ===
+                          'upi'
+                      "
+                    >
+                      <mat-icon>
+                        {{
+                          payment.payment_mode ===
+                            'upi'
+                            ? 'qr_code_2'
+                            : 'payments'
+                        }}
+                      </mat-icon>
+
+                      {{
+                        payment.payment_mode
+                          | titlecase
+                      }}
+                    </span>
+                  </td>
+
+                  <td>
+                    {{
+                      payment.payment_date
+                        | date:'d MMM y'
+                    }}
+                  </td>
+
+                  <td>
+                    {{
+                      payment.reference_number
+                        || '—'
+                    }}
+                  </td>
+
+                  <td>
+                    @if (
+                      payment.is_reversed
+                    ) {
+                      <span
+                        class="status reversed"
+                      >
+                        Reversed
+                      </span>
+                    } @else {
+                      <span
+                        class="status active"
+                      >
+                        Active
+                      </span>
+                    }
+                  </td>
+
+                  <td>
+                    <div class="actions">
+                      @if (
+                        payment.proof_image_path
+                      ) {
+                        <button
+                          mat-icon-button
+                          type="button"
+                          title="View proof"
+                          (click)="
+                            viewProof(payment)
+                          "
+                        >
+                          <mat-icon>
+                            image
+                          </mat-icon>
+                        </button>
+                      }
+
+                      @if (
+                        !payment.is_reversed
+                      ) {
+                        <button
+                          mat-icon-button
+                          type="button"
+                          class="reverse-action"
+                          title="Reverse payment"
+                          (click)="
+                            reversePayment(payment)
+                          "
+                        >
+                          <mat-icon>
+                            undo
+                          </mat-icon>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+
+                @if (
+                  payment.is_reversed
+                ) {
+                  <tr class="reversal-detail">
+                    <td colspan="8">
+                      <mat-icon>
+                        info
+                      </mat-icon>
+
+                      <span>
+                        Reversal reason:
+                        <strong>
+                          {{
+                            payment.reversal_reason
+                          }}
+                        </strong>
+
+                        @if (
+                          payment.reversed_at
+                        ) {
+                          ·
+                          {{
+                            payment.reversed_at
+                              | date:'d MMM y, h:mm a'
+                          }}
+                        }
+                      </span>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+</section>
