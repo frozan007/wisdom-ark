@@ -129,7 +129,7 @@
 
     @if (isMobile()) {
       <nav class="bottom-navigation">
-        @for (item of navigationItems; track item.route) {
+        @for (item of bottomNavigationItems; track item.route) {
           <a
             [routerLink]="item.route"
             routerLinkActive="active"
@@ -138,7 +138,7 @@
             }"
           >
             <mat-icon>{{ item.icon }}</mat-icon>
-            <span>{{ item.label }}</span>
+            <span>{{ item.shortLabel ?? item.label }}</span>
           </a>
         }
       </nav>

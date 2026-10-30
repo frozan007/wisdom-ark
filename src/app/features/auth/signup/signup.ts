@@ -130,7 +130,7 @@ export class Signup {
 
       await this.router.navigate([
         '/app/dashboard',
-      ]);
+      ], { replaceUrl: true });
 
     } catch (error) {
       this.errorMessage.set(

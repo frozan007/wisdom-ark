@@ -7,6 +7,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProfileService } from './services/profile';
 import { ProfileStateService } from './services/profile-state';
+import { ImagePickerService } from '../../shared/services/image-picker';
 
 @Component({
   selector: 'app-profile',
@@ -24,6 +25,8 @@ export class Profile implements OnInit {
   private readonly supabaseService = inject(SupabaseService);
 
   private readonly profileService = inject(ProfileService);
+
+  private readonly imagePicker = inject(ImagePickerService);
 
   private readonly formBuilder = inject(FormBuilder);
 
@@ -116,7 +119,7 @@ export class Profile implements OnInit {
       this.profileState.clear();
       await this.router.navigate([
         '/login',
-      ]);
+      ], { replaceUrl: true });
     } finally {
       this.loggingOut.set(false);
     }
@@ -207,6 +210,44 @@ export class Profile implements OnInit {
       return;
     }
 
+    await this.uploadProfileImageFile(
+      file,
+      input
+    );
+  }
+
+  async selectProfileImage(
+    input: HTMLInputElement
+  ): Promise<void> {
+    this.errorMessage.set('');
+    this.successMessage.set('');
+
+    try {
+      const file =
+        await this.imagePicker.pick(input);
+
+      if (file) {
+        await this.uploadProfileImageFile(
+          file,
+          input
+        );
+      }
+    } catch (error) {
+      console.error(
+        'Unable to pick profile image:',
+        error
+      );
+
+      this.errorMessage.set(
+        'Unable to open the camera or gallery.'
+      );
+    }
+  }
+
+  private async uploadProfileImageFile(
+    file: File,
+    input: HTMLInputElement
+  ): Promise<void> {
     this.errorMessage.set('');
     this.successMessage.set('');
 

@@ -20,7 +20,7 @@ export class ReportExportService {
     collectionTrend: MonthlyCollectionPoint[],
     monthName: string,
     year: number
-  ): void {
+  ): Promise<void> {
 
     const workbook =
       XLSX.utils.book_new();
@@ -230,19 +230,19 @@ export class ReportExportService {
           type: 'base64',
         });
 
-      void this.saveAndShareNativeFile(
+      return this.saveAndShareNativeFile(
         fileName,
         excelData,
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       );
-
-      return;
     }
 
     XLSX.writeFile(
       workbook,
       fileName
     );
+
+    return Promise.resolve();
   }
 
   exportPdf(
@@ -251,7 +251,7 @@ export class ReportExportService {
     collectionTrend: MonthlyCollectionPoint[],
     monthName: string,
     year: number
-  ): void {
+  ): Promise<void> {
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -716,16 +716,16 @@ export class ReportExportService {
         doc.output('datauristring')
           .split(',')[1];
 
-      void this.saveAndShareNativeFile(
+      return this.saveAndShareNativeFile(
         fileName,
         pdfData,
         'application/pdf'
       );
-
-      return;
     }
 
     doc.save(fileName);
+
+    return Promise.resolve();
   }
 
   private formatCurrency(
@@ -753,10 +753,20 @@ export class ReportExportService {
         directory: Directory.Cache,
       });
 
-    await Share.share({
-      title: fileName,
-      url: result.uri,
-      dialogTitle: `Save or share ${fileName}`,
-    });
+    try {
+      await Share.share({
+        title: fileName,
+        url: result.uri,
+        dialogTitle: `Save or share ${fileName}`,
+      });
+    } catch (error) {
+      // Closing the share sheet without picking an app is not a failure.
+      const message =
+        error instanceof Error ? error.message : String(error);
+
+      if (!/cancel/i.test(message)) {
+        throw error;
+      }
+    }
   }
 }

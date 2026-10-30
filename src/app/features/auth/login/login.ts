@@ -48,7 +48,7 @@ export class Login {
         return;
       }
 
-      await this.router.navigate(['/app/dashboard']);
+      await this.router.navigate(['/app/dashboard'], { replaceUrl: true });
     } catch {
       this.errorMessage.set('Unable to log in. Please try again.');
     } finally {

@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { StudentService } from '../services/student';
 import { StudentFormValue, StudentGender } from '../models/student';
+import { ImagePickerService } from '../../../shared/services/image-picker';
 
 @Component({
   selector: 'app-student-form',
@@ -27,6 +28,7 @@ export class StudentForm implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly studentService = inject(StudentService);
+  private readonly imagePicker = inject(ImagePickerService);
 
   readonly loading = signal(false);
   readonly loadingStudent = signal(false);
@@ -136,6 +138,26 @@ export class StudentForm implements OnInit {
     if (!file) {
       return;
     }
+
+    this.applyImageFile(file, input);
+  }
+
+  async selectImage(input: HTMLInputElement): Promise<void> {
+    this.errorMessage.set('');
+
+    try {
+      const file = await this.imagePicker.pick(input);
+
+      if (file) {
+        this.applyImageFile(file, input);
+      }
+    } catch (error) {
+      console.error('Unable to pick student photo:', error);
+      this.errorMessage.set('Unable to open the camera or gallery.');
+    }
+  }
+
+  private applyImageFile(file: File, input: HTMLInputElement): void {
 
     const allowedTypes = [
       'image/jpeg',

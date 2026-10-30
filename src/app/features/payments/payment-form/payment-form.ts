@@ -9,6 +9,7 @@ import { StudentService } from '../../students/services/student';
 import { PaymentService } from '../services/payment';
 import { Student } from '../../students/models/student';
 import { PaymentFormValue, PaymentMode, StudentFeeStatus } from '../models/payment';
+import { ImagePickerService } from '../../../shared/services/image-picker';
 
 @Component({
   selector: 'app-payment-form',
@@ -34,6 +35,8 @@ export class PaymentForm implements OnInit {
   private readonly studentService = inject(StudentService);
 
   private readonly paymentService = inject(PaymentService);
+
+  private readonly imagePicker = inject(ImagePickerService);
 
   readonly students = signal<Student[]>([]);
   readonly feeStatus = signal<StudentFeeStatus | null>(null);
@@ -157,6 +160,37 @@ export class PaymentForm implements OnInit {
       return;
     }
 
+    this.applyProofFile(file, input);
+  }
+
+  async selectProof(
+    input: HTMLInputElement
+  ): Promise<void> {
+    this.errorMessage.set('');
+
+    try {
+      const file =
+        await this.imagePicker.pick(input);
+
+      if (file) {
+        this.applyProofFile(file, input);
+      }
+    } catch (error) {
+      console.error(
+        'Unable to pick payment proof:',
+        error
+      );
+
+      this.errorMessage.set(
+        'Unable to open the camera or gallery.'
+      );
+    }
+  }
+
+  private applyProofFile(
+    file: File,
+    input: HTMLInputElement
+  ): void {
     const allowedTypes = [
       'image/jpeg',
       'image/png',

@@ -9,8 +9,8 @@ const config: CapacitorConfig = {
 
   plugins: {
     SplashScreen: {
-      launchShowDuration: 1500,
-      launchAutoHide: true,
+      // Hidden by the splash page once the login check finishes.
+      launchAutoHide: false,
       backgroundColor: '#0F4F2A',
       showSpinner: false,
       androidScaleType: 'CENTER_CROP',

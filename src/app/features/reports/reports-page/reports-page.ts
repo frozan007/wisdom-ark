@@ -165,7 +165,7 @@ export class ReportsPage implements OnInit {
     }
   }
 
-  exportExcel(): void {
+  async exportExcel(): Promise<void> {
     const summary =
       this.summary();
 
@@ -177,17 +177,23 @@ export class ReportsPage implements OnInit {
       return;
     }
 
-    this.reportExportService
-      .exportExcel(
-        summary,
-        this.pendingPayments(),
-        this.collectionTrend(),
-        this.monthName(),
-        this.selectedYear
-      );
+    this.errorMessage.set('');
+
+    try {
+      await this.reportExportService
+        .exportExcel(
+          summary,
+          this.pendingPayments(),
+          this.collectionTrend(),
+          this.monthName(),
+          this.selectedYear
+        );
+    } catch (error) {
+      this.setExportError(error);
+    }
   }
 
-  exportPdf(): void {
+  async exportPdf(): Promise<void> {
     const summary =
       this.summary();
 
@@ -199,13 +205,32 @@ export class ReportsPage implements OnInit {
       return;
     }
 
-    this.reportExportService
-      .exportPdf(
-        summary,
-        this.pendingPayments(),
-        this.collectionTrend(),
-        this.monthName(),
-        this.selectedYear
-      );
+    this.errorMessage.set('');
+
+    try {
+      await this.reportExportService
+        .exportPdf(
+          summary,
+          this.pendingPayments(),
+          this.collectionTrend(),
+          this.monthName(),
+          this.selectedYear
+        );
+    } catch (error) {
+      this.setExportError(error);
+    }
+  }
+
+  private setExportError(
+    error: unknown
+  ): void {
+    console.error(
+      'Report export failed:',
+      error
+    );
+
+    this.errorMessage.set(
+      'Unable to export the report. Please try again.'
+    );
   }
 }

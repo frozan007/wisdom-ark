@@ -17,6 +17,10 @@ interface NavigationItem {
   icon: string;
   route: string;
   exact?: boolean;
+  /** Shorter label for the bottom tab bar. */
+  shortLabel?: string;
+  /** Shown in the side menu only, to keep the bottom bar to five tabs. */
+  menuOnly?: boolean;
 }
 
 @Component({
@@ -56,6 +60,7 @@ export class AppShell implements OnInit {
   readonly navigationItems: NavigationItem[] = [
     {
       label: 'Dashboard',
+      shortLabel: 'Home',
       icon: 'dashboard',
       route: '/app/dashboard',
       exact: true,
@@ -84,8 +89,13 @@ export class AppShell implements OnInit {
       label: 'Reports',
       icon: 'analytics',
       route: '/app/reports',
+      menuOnly: true,
     },
   ];
+
+  readonly bottomNavigationItems = this.navigationItems.filter(
+    (item) => !item.menuOnly
+  );
 
   ngOnInit(): void {
     this.observeScreenSize();
@@ -118,7 +128,7 @@ export class AppShell implements OnInit {
         return;
       }
       this.profileState.clear();
-      await this.router.navigate(['/login']);
+      await this.router.navigate(['/login'], { replaceUrl: true });
     } finally {
       this.loggingOut.set(false);
     }

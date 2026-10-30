@@ -89,7 +89,7 @@ export class ResetPassword {
       setTimeout(() => {
         void this.router.navigate([
           '/login',
-        ]);
+        ], { replaceUrl: true });
       }, 1500);
 
     } catch (error) {
